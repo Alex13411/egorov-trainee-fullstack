@@ -5,7 +5,7 @@ import {
   formatPrice,
   type CryptoTicker,
 } from './services/crypto'
-import { error, log, logClickTarget, logOverlayAudit, warn } from './utils/debug'
+import { error, log, logOverlayAudit, mountDebugHud, bindGlobalPointerDiagnostics, warn } from './utils/debug'
 import './styles/main.css'
 
 log('main.ts loaded')
@@ -256,10 +256,15 @@ function setModal(id: ModalId, open: boolean): void {
   }
 }
 
+function getPageRoot(root: HTMLElement): HTMLElement {
+  return root.querySelector<HTMLElement>('.page') ?? root
+}
+
 function setMobileMenuOpen(root: HTMLElement, open: boolean): void {
   log('setMobileMenuOpen', open)
+  const page = getPageRoot(root)
   const menu = root.querySelector<HTMLElement>('[data-mobile-menu]')
-  root.classList.toggle('page--menu-open', open)
+  page.classList.toggle('page--menu-open', open)
   if (menu) {
     menu.hidden = !open
     menu.setAttribute('aria-hidden', open ? 'false' : 'true')
@@ -290,6 +295,58 @@ function setAuthTab(root: HTMLElement, tab: 'login' | 'signup'): void {
   })
 }
 
+function handleAction(root: HTMLElement, actionEl: HTMLElement): void {
+  const action = actionEl.dataset.action
+  log('handleAction', { action, modal: actionEl.dataset.modal })
+
+  if (action === 'google-login') {
+    startGoogleLogin()
+    return
+  }
+
+  if (action === 'toggle-menu') {
+    const page = getPageRoot(root)
+    setMobileMenuOpen(root, !page.classList.contains('page--menu-open'))
+    return
+  }
+
+  if (action === 'close-menu' || action === 'close-modal') {
+    setMobileMenuOpen(root, false)
+    closeAllModals()
+    return
+  }
+
+  if (action === 'open-modal') {
+    const modalId = actionEl.getAttribute('data-modal') as ModalId | null
+    if (modalId) setModal(modalId, true)
+  }
+}
+
+function bindDirectActions(root: HTMLElement): void {
+  const actionElements = root.querySelectorAll<HTMLElement>('[data-action]')
+  log('bindDirectActions: count', actionElements.length)
+
+  actionElements.forEach((element, index) => {
+    element.addEventListener('click', (event) => {
+      log('direct click handler', {
+        index,
+        action: element.dataset.action,
+        modal: element.dataset.modal,
+      })
+      event.preventDefault()
+      handleAction(root, element)
+    })
+  })
+
+  root.querySelectorAll<HTMLButtonElement>('.banking-card__tab').forEach((tab, index) => {
+    tab.addEventListener('click', (event) => {
+      log('direct tab click', { index, tab: tab.dataset.tab })
+      event.preventDefault()
+      setAuthTab(root, tab.dataset.tab === 'signup' ? 'signup' : 'login')
+    })
+  })
+}
+
 function bindEvents(root: HTMLElement): void {
   if (eventsBound) {
     warn('bindEvents: already bound, skipping')
@@ -298,66 +355,15 @@ function bindEvents(root: HTMLElement): void {
   eventsBound = true
   log('bindEvents: attaching listeners')
 
-  document.addEventListener(
-    'click',
-    (event) => {
-      log('document click (capture)', {
-        x: event.clientX,
-        y: event.clientY,
-        defaultPrevented: event.defaultPrevented,
-      })
-      logClickTarget(event.clientX, event.clientY)
+  bindDirectActions(root)
 
-      const target = event.target
-      if (!(target instanceof Element)) {
-        warn('click: target is not Element')
-        return
-      }
-
-      const actionEl = target.closest<HTMLElement>('[data-action]')
-      if (actionEl) {
-        const action = actionEl.dataset.action
-        log('click action element', { action, modal: actionEl.dataset.modal })
-
-        if (action === 'google-login') {
-          event.preventDefault()
-          startGoogleLogin()
-          return
-        }
-
-        if (action === 'toggle-menu') {
-          event.preventDefault()
-          setMobileMenuOpen(root, !root.classList.contains('page--menu-open'))
-          return
-        }
-
-        if (action === 'close-menu' || action === 'close-modal') {
-          event.preventDefault()
-          setMobileMenuOpen(root, false)
-          closeAllModals()
-          return
-        }
-
-        if (action === 'open-modal') {
-          event.preventDefault()
-          const modalId = actionEl.getAttribute('data-modal') as ModalId | null
-          if (modalId) setModal(modalId, true)
-          return
-        }
-      }
-
-      const tab = target.closest<HTMLButtonElement>('.banking-card__tab')
-      if (tab) {
-        event.preventDefault()
-        log('click tab', tab.dataset.tab)
-        setAuthTab(root, tab.dataset.tab === 'signup' ? 'signup' : 'login')
-        return
-      }
-
-      log('click: no handler matched')
-    },
-    true,
-  )
+  document.querySelectorAll<HTMLElement>('#modals-root [data-action]').forEach((element) => {
+    element.addEventListener('click', (event) => {
+      log('modal direct click', element.dataset.action)
+      event.preventDefault()
+      handleAction(root, element)
+    })
+  })
 
   root.querySelector('.banking-card__form')?.addEventListener('submit', (event) => {
     log('form submit')
@@ -390,6 +396,8 @@ function mountModals(): void {
 
 function mount(): void {
   log('mount: start')
+  mountDebugHud()
+  bindGlobalPointerDiagnostics()
 
   const root = document.querySelector<HTMLDivElement>('#app')
   if (!root) {

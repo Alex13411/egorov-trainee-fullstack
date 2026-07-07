@@ -16,6 +16,10 @@
     <div id="app">
       <p class="app-loading">Loading application…</p>
     </div>
+    <script>
+      console.log('[KAIROS] inline boot', { time: Date.now(), href: location.href })
+      window.__KAIROS_INLINE_BOOT = true
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
