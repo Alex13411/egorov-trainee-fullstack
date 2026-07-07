@@ -50,7 +50,7 @@ function renderAuthButton(user: AuthUser | null): string {
   `
 }
 
-function renderPage(user: AuthUser | null, tickers: CryptoTicker[]): string {
+function renderPage(user: AuthUser | null): string {
   return `
     <div class="page">
       <header class="header">
@@ -72,7 +72,6 @@ function renderPage(user: AuthUser | null, tickers: CryptoTicker[]): string {
           loop
           playsinline
           preload="auto"
-          poster="/videos/hero-poster.jpg"
         >
           <source src="/videos/hero.mp4" type="video/mp4" />
         </video>
@@ -85,8 +84,8 @@ function renderPage(user: AuthUser | null, tickers: CryptoTicker[]): string {
 
         <aside class="banking-card" aria-label="Online banking">
           <div class="banking-card__tabs">
-            <button class="banking-card__tab banking-card__tab--active" type="button">Log in</button>
-            <button class="banking-card__tab" type="button">Sign up</button>
+            <button class="banking-card__tab banking-card__tab--active" type="button" data-tab="login">Log in</button>
+            <button class="banking-card__tab" type="button" data-tab="signup">Sign up</button>
           </div>
           <form class="banking-card__form">
             <label>
@@ -105,11 +104,34 @@ function renderPage(user: AuthUser | null, tickers: CryptoTicker[]): string {
 
       <section class="crypto-orbit" aria-label="Live cryptocurrency prices">
         <div class="crypto-orbit__ring">
-          ${renderCryptoOrbit(tickers)}
+          <p class="crypto-orbit__loading">Loading live prices…</p>
         </div>
       </section>
     </div>
   `
+}
+
+function updateCryptoOrbit(ring: HTMLElement, tickers: CryptoTicker[]): void {
+  const hasItems = ring.querySelector('.crypto-orbit__item') !== null
+
+  if (!hasItems) {
+    ring.innerHTML = renderCryptoOrbit(tickers)
+    return
+  }
+
+  tickers.forEach((ticker, index) => {
+    const item = ring.querySelector(`.crypto-orbit__item--${index}`)
+    if (!item) return
+
+    const priceEl = item.querySelector<HTMLElement>('.crypto-orbit__price')
+    const changeEl = item.querySelector<HTMLElement>('.crypto-orbit__change')
+    if (!priceEl || !changeEl) return
+
+    priceEl.textContent = formatPrice(ticker.price)
+    changeEl.textContent = formatChange(ticker.changePercent)
+    changeEl.classList.toggle('crypto-orbit__change--up', ticker.changePercent >= 0)
+    changeEl.classList.toggle('crypto-orbit__change--down', ticker.changePercent < 0)
+  })
 }
 
 function mount(): void {
@@ -117,18 +139,14 @@ function mount(): void {
   if (!root) return
 
   const user = readAuthFromUrl()
-  let tickers: CryptoTicker[] = []
+  root.innerHTML = renderPage(user)
+  bindEvents(root, user)
 
-  const paint = () => {
-    root.innerHTML = renderPage(user, tickers)
-    bindEvents(root, user)
-  }
+  const cryptoRing = root.querySelector<HTMLElement>('.crypto-orbit__ring')
+  if (!cryptoRing) return
 
-  paint()
-
-  const stream = new CryptoPriceStream((nextTickers) => {
-    tickers = nextTickers
-    paint()
+  const stream = new CryptoPriceStream((tickers) => {
+    updateCryptoOrbit(cryptoRing, tickers)
   })
   stream.connect()
 
@@ -148,8 +166,16 @@ function bindEvents(root: HTMLElement, user: AuthUser | null): void {
     event.preventDefault()
   })
 
+  const tabs = root.querySelectorAll<HTMLButtonElement>('.banking-card__tab')
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      tabs.forEach((item) => item.classList.remove('banking-card__tab--active'))
+      tab.classList.add('banking-card__tab--active')
+    })
+  })
+
   if (user) {
-    const loginTab = root.querySelector('.banking-card__tab')
+    const loginTab = root.querySelector('.banking-card__tab[data-tab="login"]')
     loginTab?.classList.add('banking-card__tab--active')
   }
 }

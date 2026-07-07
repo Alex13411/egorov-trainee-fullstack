@@ -22,10 +22,12 @@ const SYMBOLS: Array<{ stream: string; label: string }> = [
 
 const streams = SYMBOLS.map(({ stream }) => `${stream}@ticker`).join('/')
 const WS_URL = `wss://stream.binance.com:9443/stream?streams=${streams}`
+const UPDATE_INTERVAL_MS = 500
 
 export class CryptoPriceStream {
   private socket: WebSocket | null = null
   private reconnectTimer: number | null = null
+  private flushTimer: number | null = null
   private readonly prices = new Map<string, CryptoTicker>()
   private readonly onUpdate: (tickers: CryptoTicker[]) => void
 
@@ -59,7 +61,7 @@ export class CryptoPriceStream {
         changePercent: Number(ticker.P),
       })
 
-      this.onUpdate(Array.from(this.prices.values()))
+      this.scheduleFlush()
     })
 
     this.socket.addEventListener('close', () => {
@@ -76,8 +78,21 @@ export class CryptoPriceStream {
       window.clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
     }
+    if (this.flushTimer) {
+      window.clearTimeout(this.flushTimer)
+      this.flushTimer = null
+    }
     this.socket?.close()
     this.socket = null
+  }
+
+  private scheduleFlush(): void {
+    if (this.flushTimer) return
+
+    this.flushTimer = window.setTimeout(() => {
+      this.flushTimer = null
+      this.onUpdate(Array.from(this.prices.values()))
+    }, UPDATE_INTERVAL_MS)
   }
 
   private scheduleReconnect(): void {
@@ -90,6 +105,10 @@ export class CryptoPriceStream {
 }
 
 export function formatPrice(value: number): string {
+  if (value === 0) {
+    return '—'
+  }
+
   if (value >= 1000) {
     return value.toLocaleString('en-US', {
       minimumFractionDigits: 2,
@@ -104,6 +123,10 @@ export function formatPrice(value: number): string {
 }
 
 export function formatChange(value: number): string {
+  if (value === 0) {
+    return '—'
+  }
+
   const sign = value >= 0 ? '+' : ''
   return `${sign}${value.toFixed(2)}%`
 }
