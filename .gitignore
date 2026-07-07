@@ -23,3 +23,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Archives / OS junk
+__MACOSX/
+.DS_Store
