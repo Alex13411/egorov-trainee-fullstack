@@ -93,12 +93,18 @@ uvicorn app.main:app --reload --port 8000
 - Figma: https://www.figma.com/design/GRJbf19lk1BMSN8khHiUG8/
 - Notion task: https://egorovagency.notion.site/Trainee-Task-FullStack-2c44adedc33280ed982ff85778e0e429
 
+## Live demo
+
+- **Frontend:** https://egorov-trainee-fullstack.vercel.app/
+- **Backend:** https://kairos-api-pk0k.onrender.com/api/health
+- **GitHub:** https://github.com/Alex13411/egorov-trainee-fullstack
+
 ## Deployment
 
-**Live URLs (fill in after deploy):**
+**Production URLs:**
 
-- Frontend: `https://YOUR-FRONTEND.vercel.app`
-- Backend: `https://YOUR-BACKEND.onrender.com`
+- Frontend: `https://egorov-trainee-fullstack.vercel.app`
+- Backend: `https://kairos-api-pk0k.onrender.com`
 
 ### 1. Backend — Render
 
@@ -111,9 +117,9 @@ uvicorn app.main:app --reload --port 8000
 |----------|---------|
 | `GOOGLE_CLIENT_ID` | from Google Cloud Console |
 | `GOOGLE_CLIENT_SECRET` | from Google Cloud Console |
-| `GOOGLE_REDIRECT_URI` | `https://YOUR-BACKEND.onrender.com/api/auth/google/callback` |
-| `FRONTEND_URL` | `https://YOUR-FRONTEND.vercel.app` |
-| `CORS_ORIGINS` | `https://YOUR-FRONTEND.vercel.app` |
+| `GOOGLE_REDIRECT_URI` | `https://kairos-api-pk0k.onrender.com/api/auth/google/callback` |
+| `FRONTEND_URL` | `https://egorov-trainee-fullstack.vercel.app` |
+| `CORS_ORIGINS` | `https://egorov-trainee-fullstack.vercel.app` |
 
 5. Wait for deploy → check `https://YOUR-BACKEND.onrender.com/api/health`
 
@@ -125,7 +131,7 @@ uvicorn app.main:app --reload --port 8000
 
 | Variable | Value |
 |----------|-------|
-| `VITE_AUTH_API_BASE` | `https://YOUR-BACKEND.onrender.com` |
+| `VITE_AUTH_API_BASE` | `https://kairos-api-pk0k.onrender.com` |
 
 4. Deploy → open the Vercel URL
 
@@ -133,8 +139,8 @@ uvicorn app.main:app --reload --port 8000
 
 In [Google Cloud Console](https://console.cloud.google.com/apis/credentials) add:
 
-- **Authorized redirect URI:** `https://YOUR-BACKEND.onrender.com/api/auth/google/callback`
-- **Authorized JavaScript origin (optional):** `https://YOUR-FRONTEND.vercel.app`
+- **Authorized redirect URI:** `https://kairos-api-pk0k.onrender.com/api/auth/google/callback`
+- **Authorized JavaScript origin:** `https://egorov-trainee-fullstack.vercel.app`
 
 ### 4. Verify production
 
