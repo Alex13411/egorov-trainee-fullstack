@@ -5,10 +5,15 @@ import {
   formatPrice,
   type CryptoTicker,
 } from './services/crypto'
+import { error, log, logClickTarget, logOverlayAudit, warn } from './utils/debug'
 import './styles/main.css'
+
+log('main.ts loaded')
 
 const NAV_ITEMS = ['HOME', 'ABOUT US', 'PRODUCTS', 'CONTACT US']
 type ModalId = 'learn-more' | 'video'
+
+let eventsBound = false
 
 const LOGO_MARK = `
   <svg class="logo__mark" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
@@ -193,6 +198,7 @@ function updateCryptoOrbit(container: HTMLElement, tickers: CryptoTicker[]): voi
   const hasItems = container.querySelector('.crypto-orbit__item') !== null
 
   if (!hasItems) {
+    log('updateCryptoOrbit: initial render', tickers.length)
     container.innerHTML = renderCryptoOrbit(tickers)
     return
   }
@@ -213,6 +219,7 @@ function updateCryptoOrbit(container: HTMLElement, tickers: CryptoTicker[]): voi
 }
 
 function closeAllModals(): void {
+  log('closeAllModals')
   document.querySelectorAll<HTMLElement>('.modal').forEach((modal) => {
     modal.classList.remove('is-open')
     modal.setAttribute('aria-hidden', 'true')
@@ -222,6 +229,8 @@ function closeAllModals(): void {
 }
 
 function setModal(id: ModalId, open: boolean): void {
+  log('setModal', { id, open })
+
   if (!open) {
     closeAllModals()
     return
@@ -230,11 +239,15 @@ function setModal(id: ModalId, open: boolean): void {
   closeAllModals()
 
   const modal = document.querySelector<HTMLElement>(`[data-modal="${id}"]`)
-  if (!modal) return
+  if (!modal) {
+    warn('setModal: modal not found', id)
+    return
+  }
 
   modal.classList.add('is-open')
   modal.setAttribute('aria-hidden', 'false')
   document.body.classList.add('modal-open')
+  log('setModal: opened', id)
 
   const video = modal.querySelector<HTMLVideoElement>('.modal__video')
   if (video) {
@@ -244,6 +257,7 @@ function setModal(id: ModalId, open: boolean): void {
 }
 
 function setMobileMenuOpen(root: HTMLElement, open: boolean): void {
+  log('setMobileMenuOpen', open)
   const menu = root.querySelector<HTMLElement>('[data-mobile-menu]')
   root.classList.toggle('page--menu-open', open)
   if (menu) {
@@ -253,8 +267,12 @@ function setMobileMenuOpen(root: HTMLElement, open: boolean): void {
 }
 
 function setAuthTab(root: HTMLElement, tab: 'login' | 'signup'): void {
+  log('setAuthTab', tab)
   const card = root.querySelector('.banking-card')
-  if (!card) return
+  if (!card) {
+    warn('setAuthTab: banking-card not found')
+    return
+  }
 
   const isSignup = tab === 'signup'
   card.classList.toggle('banking-card--signup', isSignup)
@@ -273,54 +291,82 @@ function setAuthTab(root: HTMLElement, tab: 'login' | 'signup'): void {
 }
 
 function bindEvents(root: HTMLElement): void {
-  document.addEventListener('click', (event) => {
-    const target = event.target
-    if (!(target instanceof Element)) return
+  if (eventsBound) {
+    warn('bindEvents: already bound, skipping')
+    return
+  }
+  eventsBound = true
+  log('bindEvents: attaching listeners')
 
-    const actionEl = target.closest<HTMLElement>('[data-action]')
-    if (actionEl) {
-      const action = actionEl.dataset.action
+  document.addEventListener(
+    'click',
+    (event) => {
+      log('document click (capture)', {
+        x: event.clientX,
+        y: event.clientY,
+        defaultPrevented: event.defaultPrevented,
+      })
+      logClickTarget(event.clientX, event.clientY)
 
-      if (action === 'google-login') {
-        event.preventDefault()
-        startGoogleLogin()
+      const target = event.target
+      if (!(target instanceof Element)) {
+        warn('click: target is not Element')
         return
       }
 
-      if (action === 'toggle-menu') {
+      const actionEl = target.closest<HTMLElement>('[data-action]')
+      if (actionEl) {
+        const action = actionEl.dataset.action
+        log('click action element', { action, modal: actionEl.dataset.modal })
+
+        if (action === 'google-login') {
+          event.preventDefault()
+          startGoogleLogin()
+          return
+        }
+
+        if (action === 'toggle-menu') {
+          event.preventDefault()
+          setMobileMenuOpen(root, !root.classList.contains('page--menu-open'))
+          return
+        }
+
+        if (action === 'close-menu' || action === 'close-modal') {
+          event.preventDefault()
+          setMobileMenuOpen(root, false)
+          closeAllModals()
+          return
+        }
+
+        if (action === 'open-modal') {
+          event.preventDefault()
+          const modalId = actionEl.getAttribute('data-modal') as ModalId | null
+          if (modalId) setModal(modalId, true)
+          return
+        }
+      }
+
+      const tab = target.closest<HTMLButtonElement>('.banking-card__tab')
+      if (tab) {
         event.preventDefault()
-        setMobileMenuOpen(root, !root.classList.contains('page--menu-open'))
+        log('click tab', tab.dataset.tab)
+        setAuthTab(root, tab.dataset.tab === 'signup' ? 'signup' : 'login')
         return
       }
 
-      if (action === 'close-menu' || action === 'close-modal') {
-        event.preventDefault()
-        setMobileMenuOpen(root, false)
-        closeAllModals()
-        return
-      }
-
-      if (action === 'open-modal') {
-        event.preventDefault()
-        const modalId = actionEl.getAttribute('data-modal') as ModalId | null
-        if (modalId) setModal(modalId, true)
-        return
-      }
-    }
-
-    const tab = target.closest<HTMLButtonElement>('.banking-card__tab')
-    if (tab) {
-      event.preventDefault()
-      setAuthTab(root, tab.dataset.tab === 'signup' ? 'signup' : 'login')
-    }
-  })
+      log('click: no handler matched')
+    },
+    true,
+  )
 
   root.querySelector('.banking-card__form')?.addEventListener('submit', (event) => {
+    log('form submit')
     event.preventDefault()
   })
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
+      log('escape pressed')
       closeAllModals()
       setMobileMenuOpen(root, false)
     }
@@ -328,6 +374,7 @@ function bindEvents(root: HTMLElement): void {
 }
 
 function mountModals(): void {
+  log('mountModals: start')
   const host = document.getElementById('modals-root') ?? document.createElement('div')
   host.id = 'modals-root'
   host.innerHTML = renderModals()
@@ -335,22 +382,40 @@ function mountModals(): void {
     document.body.appendChild(host)
   }
   closeAllModals()
+  log('mountModals: done', {
+    modals: document.querySelectorAll('.modal').length,
+    openModals: document.querySelectorAll('.modal.is-open').length,
+  })
 }
 
 function mount(): void {
+  log('mount: start')
+
   const root = document.querySelector<HTMLDivElement>('#app')
-  if (!root) return
+  if (!root) {
+    error('mount: #app not found')
+    return
+  }
 
   mountModals()
 
   const user = readAuthFromUrl()
   root.innerHTML = renderPage(user)
+  log('mount: page rendered')
+
   setMobileMenuOpen(root, false)
   bindEvents(root)
   document.body.dataset.appReady = 'true'
 
+  const buttons = root.querySelectorAll('button, a, input')
+  log('mount: interactive elements', buttons.length)
+  logOverlayAudit()
+
   const cryptoContainer = root.querySelector<HTMLElement>('.crypto-orbit__items')
-  if (!cryptoContainer) return
+  if (!cryptoContainer) {
+    warn('mount: crypto container not found')
+    return
+  }
 
   const stream = new CryptoPriceStream((tickers) => {
     updateCryptoOrbit(cryptoContainer, tickers)
@@ -358,6 +423,19 @@ function mount(): void {
   stream.connect()
 
   window.addEventListener('beforeunload', () => stream.disconnect())
+  log('mount: complete')
 }
 
-mount()
+window.addEventListener('error', (event) => {
+  error('window error', event.message, event.filename, event.lineno)
+})
+
+window.addEventListener('unhandledrejection', (event) => {
+  error('unhandled rejection', event.reason)
+})
+
+try {
+  mount()
+} catch (err) {
+  error('mount failed', err)
+}

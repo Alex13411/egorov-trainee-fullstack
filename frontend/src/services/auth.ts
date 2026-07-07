@@ -1,3 +1,5 @@
+import { log } from '../utils/debug'
+
 export type AuthUser = {
   name: string
   email: string
@@ -5,8 +7,11 @@ export type AuthUser = {
 }
 
 export function readAuthFromUrl(): AuthUser | null {
+  log('readAuthFromUrl: start', window.location.search)
+
   const params = new URLSearchParams(window.location.search)
   if (params.get('auth') !== 'success') {
+    log('readAuthFromUrl: no auth params')
     return null
   }
 
@@ -17,9 +22,11 @@ export function readAuthFromUrl(): AuthUser | null {
   }
 
   window.history.replaceState({}, document.title, window.location.pathname)
+  log('readAuthFromUrl: user', user.email)
   return user.email ? user : null
 }
 
 export function startGoogleLogin(): void {
+  log('startGoogleLogin: redirect')
   window.location.href = '/api/auth/google/login'
 }
