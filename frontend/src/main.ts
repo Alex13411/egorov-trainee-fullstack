@@ -157,7 +157,7 @@ function renderPage(user: AuthUser | null): string {
         </div>
       </section>
 
-      <div class="modal" data-modal="learn-more" hidden>
+      <div class="modal" data-modal="learn-more" aria-hidden="true">
         <div class="modal__backdrop" data-action="close-modal"></div>
         <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="learn-more-title">
           <button class="modal__close" type="button" data-action="close-modal" aria-label="Close">×</button>
@@ -170,7 +170,7 @@ function renderPage(user: AuthUser | null): string {
         </div>
       </div>
 
-      <div class="modal modal--video" data-modal="video" hidden>
+      <div class="modal modal--video" data-modal="video" aria-hidden="true">
         <div class="modal__backdrop" data-action="close-modal"></div>
         <div class="modal__dialog modal__dialog--video" role="dialog" aria-modal="true" aria-labelledby="video-title">
           <button class="modal__close" type="button" data-action="close-modal" aria-label="Close">×</button>
@@ -209,54 +209,63 @@ function updateCryptoOrbit(container: HTMLElement, tickers: CryptoTicker[]): voi
   })
 }
 
-function setModal(root: HTMLElement, id: ModalId, open: boolean): void {
+function closeAllModals(root: HTMLElement): void {
   root.querySelectorAll<HTMLElement>('.modal').forEach((modal) => {
-    modal.hidden = true
+    modal.classList.remove('is-open')
+    modal.setAttribute('aria-hidden', 'true')
+    modal.querySelector<HTMLVideoElement>('.modal__video')?.pause()
   })
+  document.body.classList.remove('modal-open')
+}
+
+function setModal(root: HTMLElement, id: ModalId, open: boolean): void {
+  if (!open) {
+    closeAllModals(root)
+    return
+  }
+
+  closeAllModals(root)
 
   const modal = root.querySelector<HTMLElement>(`[data-modal="${id}"]`)
   if (!modal) return
 
-  modal.hidden = !open
-  document.body.classList.toggle('modal-open', open)
+  modal.classList.add('is-open')
+  modal.setAttribute('aria-hidden', 'false')
+  document.body.classList.add('modal-open')
 
   const video = modal.querySelector<HTMLVideoElement>('.modal__video')
-  if (!video) return
-
-  if (open) {
+  if (video) {
     video.currentTime = 0
     void video.play()
-  } else {
-    video.pause()
-    video.currentTime = 0
   }
-}
-
-function closeAllModals(root: HTMLElement): void {
-  root.querySelectorAll<HTMLElement>('.modal').forEach((modal) => {
-    modal.hidden = true
-    modal.querySelector<HTMLVideoElement>('.modal__video')?.pause()
-  })
-  document.body.classList.remove('modal-open')
 }
 
 function setMobileMenuOpen(root: HTMLElement, open: boolean): void {
   const menu = root.querySelector<HTMLElement>('[data-mobile-menu]')
   const backdrop = root.querySelector<HTMLElement>('[data-mobile-backdrop]')
   root.classList.toggle('page--menu-open', open)
-  if (menu) menu.hidden = !open
-  if (backdrop) backdrop.hidden = !open
+  if (menu) {
+    menu.hidden = !open
+    menu.setAttribute('aria-hidden', open ? 'false' : 'true')
+  }
+  if (backdrop) {
+    backdrop.hidden = !open
+  }
 }
 
 function setAuthTab(root: HTMLElement, tab: 'login' | 'signup'): void {
   const card = root.querySelector('.banking-card')
   if (!card) return
 
-  card.classList.toggle('banking-card--signup', tab === 'signup')
+  const isSignup = tab === 'signup'
+  card.classList.toggle('banking-card--signup', isSignup)
+
+  const signupField = root.querySelector<HTMLElement>('.field--signup-only')
+  if (signupField) signupField.hidden = !isSignup
 
   const submit = root.querySelector<HTMLButtonElement>('.banking-card__submit')
   if (submit) {
-    submit.textContent = tab === 'signup' ? 'Sign up' : 'Log in'
+    submit.textContent = isSignup ? 'Sign up' : 'Log in'
   }
 
   root.querySelectorAll<HTMLButtonElement>('.banking-card__tab').forEach((button) => {
@@ -270,6 +279,8 @@ function mount(): void {
 
   const user = readAuthFromUrl()
   root.innerHTML = renderPage(user)
+  closeAllModals(root)
+  setMobileMenuOpen(root, false)
   bindEvents(root, user)
 
   const cryptoContainer = root.querySelector<HTMLElement>('.crypto-orbit__items')
@@ -284,39 +295,43 @@ function mount(): void {
 }
 
 function bindEvents(root: HTMLElement, user: AuthUser | null): void {
-  root.querySelectorAll('[data-action="google-login"]').forEach((button) => {
-    button.addEventListener('click', () => startGoogleLogin())
-  })
+  root.addEventListener('click', (event) => {
+    const target = (event.target as HTMLElement).closest<HTMLElement>('[data-action]')
+    if (!target) return
 
-  root.querySelector('[data-action="toggle-menu"]')?.addEventListener('click', () => {
-    const isOpen = root.classList.contains('page--menu-open')
-    setMobileMenuOpen(root, !isOpen)
-  })
+    const action = target.dataset.action
 
-  root.querySelector('[data-action="close-menu"]')?.addEventListener('click', () => {
-    setMobileMenuOpen(root, false)
-  })
+    if (action === 'google-login') {
+      startGoogleLogin()
+      return
+    }
 
-  root.querySelectorAll('[data-action="open-modal"]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const modalId = button.getAttribute('data-modal') as ModalId | null
+    if (action === 'toggle-menu') {
+      setMobileMenuOpen(root, !root.classList.contains('page--menu-open'))
+      return
+    }
+
+    if (action === 'close-menu' || action === 'close-modal') {
+      setMobileMenuOpen(root, false)
+      closeAllModals(root)
+      return
+    }
+
+    if (action === 'open-modal') {
+      const modalId = target.getAttribute('data-modal') as ModalId | null
       if (modalId) setModal(root, modalId, true)
-    })
+    }
   })
 
-  root.querySelectorAll('[data-action="close-modal"]').forEach((button) => {
-    button.addEventListener('click', () => closeAllModals(root))
+  root.addEventListener('click', (event) => {
+    const tab = (event.target as HTMLElement).closest<HTMLButtonElement>('.banking-card__tab')
+    if (!tab) return
+
+    setAuthTab(root, tab.dataset.tab === 'signup' ? 'signup' : 'login')
   })
 
   root.querySelector('.banking-card__form')?.addEventListener('submit', (event) => {
     event.preventDefault()
-  })
-
-  root.querySelectorAll<HTMLButtonElement>('.banking-card__tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      const nextTab = tab.dataset.tab === 'signup' ? 'signup' : 'login'
-      setAuthTab(root, nextTab)
-    })
   })
 
   if (user) {
