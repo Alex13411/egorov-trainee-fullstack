@@ -1,5 +1,5 @@
 import { logout, startGoogleLogin } from '../services/auth'
-import { addToWatchlist } from '../services/crypto-watchlist'
+import { addToWatchlist, removeFromWatchlist } from '../services/crypto-watchlist'
 import type { ModalId } from '../ui/constants'
 import { CRYPTO_UPDATED_EVENT } from './crypto-events'
 import { closeAllModals, setModal } from './modals'
@@ -54,6 +54,15 @@ function handleAction(root: HTMLElement, actionEl: HTMLElement): void {
     if (!cryptoId) return
     if (addToWatchlist(cryptoId)) {
       closeAllModals()
+      window.dispatchEvent(new CustomEvent(CRYPTO_UPDATED_EVENT))
+    }
+    return
+  }
+
+  if (action === 'remove-crypto') {
+    const cryptoId = actionEl.dataset.cryptoId
+    if (!cryptoId) return
+    if (removeFromWatchlist(cryptoId)) {
       window.dispatchEvent(new CustomEvent(CRYPTO_UPDATED_EVENT))
     }
   }

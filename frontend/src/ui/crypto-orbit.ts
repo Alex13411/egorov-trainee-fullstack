@@ -2,15 +2,29 @@ import { listAvailableToAdd } from '../services/crypto-catalog'
 import { canAddMoreCoins, type CryptoWatchlist } from '../services/crypto-watchlist'
 import { formatPrice, type CryptoTicker } from '../services/crypto'
 
+function renderRemoveButton(id: string, name: string): string {
+  return `
+    <button
+      class="crypto-item__remove"
+      type="button"
+      data-action="remove-crypto"
+      data-crypto-id="${id}"
+      aria-label="Remove ${name}"
+    >×</button>
+  `
+}
+
 function renderCryptoItem(id: string, side: 'left' | 'right', ticker?: CryptoTicker): string {
   const price = ticker ? formatPrice(ticker.price) : '—'
   const name = ticker?.name ?? id
   const icon = ticker?.icon ?? '?'
   const color = ticker?.color ?? '#ffffff'
+  const removeButton = renderRemoveButton(id, name)
 
   if (side === 'left') {
     return `
       <article class="crypto-item crypto-item--left" data-crypto-id="${id}">
+        ${removeButton}
         <span class="crypto-item__price">${price}</span>
         <span class="crypto-item__name">${name}</span>
         <span class="crypto-item__icon" style="--icon-color: ${color}">${icon}</span>
@@ -23,6 +37,7 @@ function renderCryptoItem(id: string, side: 'left' | 'right', ticker?: CryptoTic
       <span class="crypto-item__icon" style="--icon-color: ${color}">${icon}</span>
       <span class="crypto-item__name">${name}</span>
       <span class="crypto-item__price">${price}</span>
+      ${removeButton}
     </article>
   `
 }

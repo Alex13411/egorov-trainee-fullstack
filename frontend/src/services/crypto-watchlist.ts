@@ -62,6 +62,25 @@ export function canAddMoreCoins(watchlist: CryptoWatchlist = getWatchlist()): bo
   return watchlist.left.length < MAX_COINS_PER_COLUMN || watchlist.right.length < MAX_COINS_PER_COLUMN
 }
 
+export function removeFromWatchlist(assetId: string): boolean {
+  const watchlist = getWatchlist()
+  const leftIndex = watchlist.left.indexOf(assetId)
+  if (leftIndex !== -1) {
+    watchlist.left.splice(leftIndex, 1)
+    saveWatchlist(watchlist)
+    return true
+  }
+
+  const rightIndex = watchlist.right.indexOf(assetId)
+  if (rightIndex !== -1) {
+    watchlist.right.splice(rightIndex, 1)
+    saveWatchlist(watchlist)
+    return true
+  }
+
+  return false
+}
+
 function cloneWatchlist(watchlist: { left: readonly string[]; right: readonly string[] }): CryptoWatchlist {
   return {
     left: [...watchlist.left],
