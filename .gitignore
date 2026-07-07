@@ -27,3 +27,7 @@ Thumbs.db
 # Archives / OS junk
 __MACOSX/
 .DS_Store
+
+# Local Figma comparison crops (not for repo)
+figma*.jpg
+figma*.png
