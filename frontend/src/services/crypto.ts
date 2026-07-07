@@ -30,6 +30,7 @@ export class CryptoPriceStream {
   private socket: WebSocket | null = null
   private reconnectTimer: number | null = null
   private flushTimer: number | null = null
+  private hasFlushed = false
   private readonly prices = new Map<string, CryptoTicker>()
   private readonly onUpdate: (tickers: CryptoTicker[]) => void
 
@@ -102,7 +103,10 @@ export class CryptoPriceStream {
 
     this.flushTimer = window.setTimeout(() => {
       this.flushTimer = null
-      log('CryptoPriceStream: flush', this.prices.size, 'tickers')
+      if (!this.hasFlushed) {
+        log('CryptoPriceStream: first prices received', this.prices.size)
+        this.hasFlushed = true
+      }
       this.onUpdate(Array.from(this.prices.values()))
     }, UPDATE_INTERVAL_MS)
   }

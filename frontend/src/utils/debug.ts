@@ -1,57 +1,46 @@
 const PREFIX = '[KAIROS]'
-const MAX_HUD_LINES = 14
+const TERMINAL_LOG_URL = '/__kairos-log'
+let pointerDiagnosticsBound = false
 
-let hudEl: HTMLPreElement | null = null
-const hudLines: string[] = []
+function formatArg(value: unknown): string {
+  if (typeof value === 'string') return value
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return String(value)
+  }
+}
 
-function pushHud(line: string): void {
-  const stamp = new Date().toLocaleTimeString()
-  hudLines.unshift(`${stamp} ${line}`)
-  hudLines.length = MAX_HUD_LINES
+function sendToTerminal(level: 'log' | 'warn' | 'error', args: unknown[]): void {
+  if (!import.meta.env.DEV) return
 
-  if (!hudEl) return
-  hudEl.textContent = hudLines.join('\n')
+  void fetch(TERMINAL_LOG_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      level,
+      args: args.map(formatArg),
+      time: new Date().toLocaleTimeString(),
+    }),
+    keepalive: true,
+  }).catch(() => {
+    // Terminal logger unavailable outside Vite dev server.
+  })
 }
 
 export function log(...args: unknown[]): void {
   console.log(PREFIX, ...args)
-  pushHud(formatHudLine('log', args))
+  sendToTerminal('log', args)
 }
 
 export function warn(...args: unknown[]): void {
   console.warn(PREFIX, ...args)
-  pushHud(formatHudLine('warn', args))
+  sendToTerminal('warn', args)
 }
 
 export function error(...args: unknown[]): void {
   console.error(PREFIX, ...args)
-  pushHud(formatHudLine('err', args))
-}
-
-function formatHudLine(level: string, args: unknown[]): string {
-  const text = args
-    .map((value) => {
-      if (typeof value === 'string') return value
-      try {
-        return JSON.stringify(value)
-      } catch {
-        return String(value)
-      }
-    })
-    .join(' ')
-
-  return `[${level}] ${text}`
-}
-
-export function mountDebugHud(): void {
-  if (hudEl || document.getElementById('kairos-debug-hud')) return
-
-  hudEl = document.createElement('pre')
-  hudEl.id = 'kairos-debug-hud'
-  hudEl.setAttribute('aria-live', 'polite')
-  hudEl.textContent = 'KAIROS debug HUD ready'
-  document.body.appendChild(hudEl)
-  log('debug HUD mounted')
+  sendToTerminal('error', args)
 }
 
 export function logClickTarget(x: number, y: number, phase = 'click'): void {
@@ -111,23 +100,21 @@ export function logOverlayAudit(): void {
 }
 
 export function bindGlobalPointerDiagnostics(): void {
-  const phases = ['pointerdown', 'mousedown', 'click'] as const
+  if (pointerDiagnosticsBound) return
+  pointerDiagnosticsBound = true
 
-  for (const phase of phases) {
-    document.addEventListener(
-      phase,
-      (event) => {
-        log(`document ${phase}`, {
-          x: event.clientX,
-          y: event.clientY,
-          type: event.type,
-          defaultPrevented: event.defaultPrevented,
-        })
-        logClickTarget(event.clientX, event.clientY, phase)
-      },
-      true,
-    )
-  }
+  document.addEventListener(
+    'click',
+    (event) => {
+      log('click', {
+        x: event.clientX,
+        y: event.clientY,
+        defaultPrevented: event.defaultPrevented,
+      })
+      logClickTarget(event.clientX, event.clientY, 'click')
+    },
+    true,
+  )
 
-  log('global pointer diagnostics bound')
+  log('pointer diagnostics bound (terminal + browser console)')
 }

@@ -5,12 +5,16 @@
   --muted: #8fa8bf;
   --accent: #2fd5ff;
   --accent-strong: #00b8ff;
-  --card: rgba(5, 18, 36, 0.72);
+  --purple: #6b4eff;
+  --purple-dark: #4a2fd9;
+  --gold: #d4af37;
+  --gold-strong: #c9a227;
+  --card: rgba(5, 18, 36, 0.78);
   --border: rgba(47, 213, 255, 0.22);
   --border-strong: rgba(47, 213, 255, 0.45);
   --success: #57e6a0;
   --danger: #ff7b7b;
-  --container: 1280px;
+  --container: 1320px;
   --header-height: 88px;
   --font-display: "Barlow Condensed", "Segoe UI", sans-serif;
   --font-body: "Barlow", "Segoe UI", sans-serif;
@@ -20,6 +24,10 @@
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 html,
@@ -41,25 +49,6 @@ body.modal-open {
 
 #modals-root {
   pointer-events: none;
-}
-
-#kairos-debug-hud {
-  position: fixed;
-  right: 12px;
-  bottom: 12px;
-  z-index: 9999;
-  width: min(420px, calc(100vw - 24px));
-  max-height: 220px;
-  margin: 0;
-  padding: 10px 12px;
-  overflow: auto;
-  border: 1px solid rgba(47, 213, 255, 0.35);
-  border-radius: 12px;
-  background: rgba(1, 6, 17, 0.92);
-  color: #9fdcff;
-  font: 11px/1.4 Consolas, "Courier New", monospace;
-  pointer-events: none;
-  white-space: pre-wrap;
 }
 
 a {
@@ -85,7 +74,7 @@ input {
 }
 
 .container {
-  width: min(var(--container), calc(100% - 48px));
+  width: min(var(--container), calc(100% - 80px));
   margin-inline: auto;
 }
 
@@ -93,21 +82,25 @@ input {
   position: relative;
 }
 
-/* Header */
+[id] {
+  scroll-margin-top: calc(var(--header-height) + 16px);
+}
+
+/* Header — Figma HP desktop */
 .header {
   position: fixed;
   inset: 0 0 auto;
   z-index: 30;
   height: var(--header-height);
-  background: linear-gradient(180deg, rgba(1, 6, 17, 0.82), rgba(1, 6, 17, 0));
-  backdrop-filter: blur(8px);
+  background: linear-gradient(180deg, rgba(1, 6, 17, 0.9), rgba(1, 6, 17, 0));
+  backdrop-filter: blur(10px);
 }
 
 .header__inner {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   height: 100%;
-  gap: 32px;
 }
 
 .logo {
@@ -115,6 +108,7 @@ input {
   align-items: center;
   gap: 12px;
   color: var(--text);
+  justify-self: start;
 }
 
 .logo__mark {
@@ -132,8 +126,8 @@ input {
 .nav {
   display: flex;
   align-items: center;
-  gap: 36px;
-  margin-left: auto;
+  gap: 40px;
+  justify-self: center;
 }
 
 .nav__link {
@@ -141,7 +135,7 @@ input {
   font-family: var(--font-display);
   font-size: 0.8125rem;
   font-weight: 500;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   transition: color 0.2s ease;
 }
 
@@ -153,6 +147,7 @@ input {
   display: flex;
   align-items: center;
   gap: 12px;
+  justify-self: end;
 }
 
 .auth {
@@ -160,7 +155,7 @@ input {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.03);
   color: var(--text);
-  padding: 10px 16px;
+  padding: 10px 18px;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -176,6 +171,19 @@ input {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+}
+
+.auth__logout {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.auth__logout:hover {
+  color: var(--text);
 }
 
 .auth__avatar {
@@ -201,11 +209,14 @@ input {
   background: var(--text);
 }
 
-/* Hero */
+/* Hero — Figma HP */
 .hero {
   position: relative;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
+  padding-bottom: 48px;
 }
 
 .hero__media {
@@ -224,121 +235,165 @@ input {
 
 .hero__overlay {
   background:
-    radial-gradient(circle at 62% 42%, rgba(0, 184, 255, 0.18), transparent 28%),
-    linear-gradient(180deg, rgba(1, 6, 17, 0.35) 0%, rgba(1, 6, 17, 0.72) 58%, rgba(1, 6, 17, 0.95) 100%);
+    radial-gradient(circle at 58% 38%, rgba(0, 184, 255, 0.2), transparent 32%),
+    linear-gradient(90deg, rgba(1, 6, 17, 0.88) 0%, rgba(1, 6, 17, 0.45) 42%, rgba(1, 6, 17, 0.72) 100%),
+    linear-gradient(180deg, rgba(1, 6, 17, 0.2) 0%, rgba(1, 6, 17, 0.82) 72%, rgba(1, 6, 17, 1) 100%);
 }
 
 .hero__video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 20%;
 }
 
 .hero__layout {
   position: relative;
   z-index: 5;
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 420px);
+  grid-template-columns: minmax(0, 1fr) 400px;
   align-items: center;
-  gap: 48px;
-  min-height: calc(100vh - var(--header-height));
-  padding-top: calc(var(--header-height) + 48px);
-  padding-bottom: 80px;
+  gap: 56px;
+  flex: 1;
+  min-height: calc(100vh - var(--header-height) - 280px);
+  padding-top: calc(var(--header-height) + 56px);
+  padding-bottom: 32px;
 }
 
 .hero__content {
-  max-width: 640px;
+  max-width: 620px;
 }
 
 .hero__title {
   display: grid;
-  gap: 4px;
-  margin: 0 0 32px;
+  gap: 0;
+  margin: 0 0 24px;
   font-family: var(--font-display);
-  font-size: clamp(3rem, 6.4vw, 5.5rem);
+  font-size: clamp(2.75rem, 5.2vw, 5.5rem);
   font-weight: 700;
   line-height: 0.92;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.hero__subtitle {
+  max-width: 520px;
+  margin: 0 0 32px;
+  color: rgba(244, 251, 255, 0.82);
+  font-size: 1rem;
+  line-height: 1.65;
 }
 
 .hero__cta {
-  border: 1px solid var(--border-strong);
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  border: 0;
   border-radius: 999px;
-  background: rgba(47, 213, 255, 0.06);
-  color: var(--text);
-  padding: 14px 32px;
+  background: #ffffff;
+  color: #0a1128;
+  min-width: 0;
+  padding: 12px 12px 12px 24px;
   font-family: var(--font-display);
   font-size: 0.875rem;
-  letter-spacing: 0.18em;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .hero__cta:hover {
-  background: rgba(47, 213, 255, 0.12);
-  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
 }
 
 .hero__actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 12px;
 }
 
-.hero__cta--ghost {
-  background: transparent;
+.hero__cta--icon {
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border-radius: 14px;
+  color: #0a1128;
 }
 
-/* Banking card */
+.hero__cta--ghost {
+  display: none;
+}
+
+.hero__orbit {
+  position: relative;
+  z-index: 4;
+  margin-top: -48px;
+  pointer-events: none;
+}
+
+/* Banking card — Figma */
 .hero__content,
 .banking-card,
 .hero__cta,
 .banking-card__tab,
 .auth,
-.burger {
-  position: relative;
+.burger,
+.hero__orbit .crypto-orbit__core,
+.hero__orbit .crypto-orbit__item {
   pointer-events: auto;
 }
 
 .banking-card {
   position: relative;
   z-index: 6;
-  width: 100%;
-  padding: 28px 28px 32px;
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  background: var(--card);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  width: 400px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+}
+
+.banking-card__header {
+  padding: 18px 24px;
+  background: linear-gradient(90deg, var(--purple-dark), var(--purple));
 }
 
 .banking-card__title {
-  margin: 0 0 20px;
+  margin: 0;
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.32em;
   text-align: center;
+  color: #ffffff;
+}
+
+.banking-card__body {
+  padding: 24px 24px 28px;
+  background: #ffffff;
+  color: #0a1128;
 }
 
 .banking-card__tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 24px;
   padding: 4px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(10, 17, 40, 0.06);
 }
 
 .banking-card__tab {
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: var(--muted);
-  padding: 12px;
+  color: rgba(10, 17, 40, 0.55);
+  padding: 12px 16px;
   font-family: var(--font-display);
   font-size: 0.875rem;
   letter-spacing: 0.08em;
@@ -346,13 +401,13 @@ input {
 }
 
 .banking-card__tab--active {
-  background: rgba(47, 213, 255, 0.14);
-  color: var(--text);
+  background: rgba(107, 78, 255, 0.12);
+  color: #0a1128;
 }
 
 .banking-card__form {
   display: grid;
-  gap: 16px;
+  gap: 18px;
 }
 
 .field {
@@ -361,43 +416,60 @@ input {
 }
 
 .field__label {
-  color: var(--muted);
+  color: rgba(10, 17, 40, 0.62);
   font-size: 0.8125rem;
 }
 
 .field__input {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text);
+  border: 1px solid rgba(10, 17, 40, 0.12);
+  border-radius: 12px;
+  background: rgba(10, 17, 40, 0.03);
+  color: #0a1128;
+  min-height: 48px;
   padding: 14px 16px;
 }
 
 .field__input::placeholder {
-  color: rgba(143, 168, 191, 0.65);
+  color: rgba(10, 17, 40, 0.38);
 }
 
 .field__input:focus {
   outline: none;
-  border-color: rgba(47, 213, 255, 0.45);
+  border-color: rgba(107, 78, 255, 0.45);
 }
 
 .banking-card__forgot {
-  color: var(--accent);
+  color: var(--purple);
   font-size: 0.8125rem;
 }
 
 .banking-card__submit {
   border: 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
-  color: #001018;
+  background: linear-gradient(90deg, var(--gold), var(--gold-strong));
+  color: #1a1400;
+  min-height: 48px;
   font-family: var(--font-display);
   font-size: 0.9375rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   padding: 14px;
   cursor: pointer;
+}
+
+.banking-card__learn-more {
+  border: 0;
+  background: transparent;
+  color: rgba(10, 17, 40, 0.48);
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.banking-card__learn-more:hover {
+  color: var(--purple);
 }
 
 .banking-card--signup .banking-card__forgot {
@@ -412,19 +484,30 @@ input {
   display: none;
 }
 
+/* Mobile menu — Figma Tablet Menu */
 .mobile-menu__backdrop {
-  display: none !important;
+  position: fixed;
+  inset: 0;
+  z-index: 24;
+  border: 0;
+  background: rgba(1, 6, 17, 0.62);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+}
+
+.mobile-menu__backdrop[hidden] {
+  display: none;
 }
 
 .mobile-menu {
   position: fixed;
   inset: 0 0 0 auto;
   z-index: 25;
-  width: min(320px, 86vw);
-  padding: calc(var(--header-height) + 24px) 24px 32px;
+  width: min(360px, 88vw);
+  padding: calc(var(--header-height) + 32px) 40px 40px;
   border-left: 1px solid var(--border);
   background: rgba(1, 6, 17, 0.98);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(18px);
   transform: translateX(100%);
   transition: transform 0.28s ease;
 }
@@ -434,12 +517,7 @@ input {
 }
 
 .page--menu-open::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 24;
-  background: rgba(1, 6, 17, 0.55);
-  backdrop-filter: blur(2px);
+  content: none;
 }
 
 .page--menu-open .mobile-menu {
@@ -449,37 +527,50 @@ input {
 
 .mobile-menu__nav {
   display: grid;
-  gap: 18px;
+  gap: 28px;
 }
 
 .mobile-menu__link {
   font-family: var(--font-display);
-  font-size: 1rem;
-  letter-spacing: 0.16em;
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
   color: var(--muted);
+  text-transform: uppercase;
+}
+
+.mobile-menu__link:hover {
+  color: var(--text);
 }
 
 .mobile-menu__auth {
-  margin-top: 12px;
+  margin-top: 16px;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.03);
   color: var(--text);
-  padding: 12px 16px;
+  padding: 14px 18px;
   cursor: pointer;
 }
 
-/* Crypto section */
-.crypto-section {
-  position: relative;
-  z-index: 1;
-  padding: 48px 0 96px;
-  background: var(--bg);
+.mobile-menu__user {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  color: var(--text);
 }
 
+.mobile-menu__user span {
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+}
+
+/* Crypto orbit — Figma HP bottom */
 .crypto-orbit {
   position: relative;
-  width: min(820px, 100%);
+  width: min(760px, 100%);
   aspect-ratio: 1;
   margin: 0 auto;
 }
@@ -493,27 +584,27 @@ input {
 }
 
 .crypto-orbit__glow {
-  inset: 18%;
-  background: radial-gradient(circle, rgba(47, 213, 255, 0.18), transparent 70%);
-  filter: blur(12px);
+  inset: 16%;
+  background: radial-gradient(circle, rgba(47, 213, 255, 0.22), transparent 70%);
+  filter: blur(14px);
 }
 
 .crypto-orbit__ring--outer {
-  border: 1px solid rgba(47, 213, 255, 0.12);
-  box-shadow: inset 0 0 60px rgba(47, 213, 255, 0.05);
+  border: 1px solid rgba(47, 213, 255, 0.14);
+  box-shadow: inset 0 0 80px rgba(47, 213, 255, 0.06);
 }
 
 .crypto-orbit__ring--inner {
-  inset: 14%;
-  border: 1px solid rgba(47, 213, 255, 0.08);
+  inset: 12%;
+  border: 1px solid rgba(47, 213, 255, 0.1);
 }
 
 .crypto-orbit__core {
   position: absolute;
-  inset: 38%;
-  border: 1px solid rgba(47, 213, 255, 0.18);
+  inset: 37%;
+  border: 1px solid rgba(47, 213, 255, 0.22);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(47, 213, 255, 0.08), rgba(1, 6, 17, 0.2));
+  background: radial-gradient(circle, rgba(47, 213, 255, 0.1), rgba(1, 6, 17, 0.25));
   cursor: pointer;
   z-index: 2;
   pointer-events: auto;
@@ -521,18 +612,18 @@ input {
 }
 
 .crypto-orbit__core:hover {
-  border-color: rgba(47, 213, 255, 0.45);
-  transform: scale(1.03);
+  border-color: rgba(47, 213, 255, 0.5);
+  transform: scale(1.04);
 }
 
 .crypto-orbit__play {
   position: absolute;
   inset: 0;
   margin: auto;
-  width: 18px;
-  height: 18px;
+  width: 0;
+  height: 0;
   border-style: solid;
-  border-width: 9px 0 9px 16px;
+  border-width: 10px 0 10px 18px;
   border-color: transparent transparent transparent var(--accent);
 }
 
@@ -544,13 +635,13 @@ input {
 
 .crypto-orbit__item {
   position: absolute;
-  width: 148px;
-  padding: 12px 14px;
+  width: 152px;
+  padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: rgba(5, 18, 36, 0.88);
+  background: rgba(5, 18, 36, 0.9);
   text-align: center;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
   pointer-events: auto;
 }
 
@@ -570,14 +661,14 @@ input {
   color: var(--muted);
   font-family: var(--font-display);
   font-size: 0.75rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
 }
 
 .crypto-orbit__price {
   display: block;
   margin: 8px 0 4px;
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: 1.0625rem;
   font-weight: 600;
 }
 
@@ -591,12 +682,12 @@ input {
   font-size: 0.8125rem;
 }
 
-.crypto-orbit__item--0 { top: 2%; left: 50%; transform: translateX(-50%); }
-.crypto-orbit__item--1 { top: 22%; right: 4%; }
-.crypto-orbit__item--2 { bottom: 22%; right: 4%; }
-.crypto-orbit__item--3 { bottom: 2%; left: 50%; transform: translateX(-50%); }
-.crypto-orbit__item--4 { bottom: 22%; left: 4%; }
-.crypto-orbit__item--5 { top: 22%; left: 4%; }
+.crypto-orbit__item--0 { top: 0; left: 50%; transform: translateX(-50%); }
+.crypto-orbit__item--1 { top: 20%; right: 2%; }
+.crypto-orbit__item--2 { bottom: 20%; right: 2%; }
+.crypto-orbit__item--3 { bottom: 0; left: 50%; transform: translateX(-50%); }
+.crypto-orbit__item--4 { bottom: 20%; left: 2%; }
+.crypto-orbit__item--5 { top: 20%; left: 2%; }
 
 /* Modal */
 .modal {
@@ -628,9 +719,9 @@ input {
   position: relative;
   z-index: 1;
   width: min(560px, 100%);
-  padding: 32px;
+  padding: 36px;
   border: 1px solid var(--border);
-  border-radius: 24px;
+  border-radius: 20px;
   background: rgba(5, 18, 36, 0.96);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
 }
@@ -699,13 +790,63 @@ input {
   object-fit: cover;
 }
 
-/* Tablet */
+/* Footer — contact anchor */
+.footer {
+  position: relative;
+  z-index: 1;
+  padding: 32px 0 48px;
+  border-top: 1px solid rgba(47, 213, 255, 0.12);
+  background: var(--bg);
+}
+
+.footer__inner {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  text-align: center;
+}
+
+.footer__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+}
+
+.footer__text {
+  margin: 0;
+  max-width: 420px;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.footer__email {
+  color: var(--accent);
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+}
+
+.footer__email:hover {
+  color: var(--text);
+}
+
+/* Tablet — Figma T. HP */
 @media (max-width: 1100px) {
-  .nav {
+  .container {
+    width: min(var(--container), calc(100% - 48px));
+  }
+
+  .header__inner {
+    grid-template-columns: 1fr auto;
+  }
+
+  .nav,
+  .auth--google {
     display: none;
   }
 
-  .auth--google {
+  .auth--signed-in {
     display: none;
   }
 
@@ -713,10 +854,16 @@ input {
     display: inline-block;
   }
 
+  .hero {
+    padding-bottom: 32px;
+  }
+
   .hero__layout {
     grid-template-columns: 1fr;
-    gap: 40px;
-    padding-bottom: 48px;
+    gap: 36px;
+    min-height: auto;
+    padding-top: calc(var(--header-height) + 40px);
+    padding-bottom: 24px;
   }
 
   .hero__content {
@@ -724,8 +871,14 @@ input {
     text-align: center;
   }
 
+  .hero__subtitle {
+    margin-inline: auto;
+  }
+
   .hero__title {
     justify-items: center;
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    margin-bottom: 20px;
   }
 
   .hero__actions {
@@ -733,12 +886,18 @@ input {
   }
 
   .banking-card {
-    max-width: 460px;
+    width: 100%;
+    max-width: 480px;
     margin-inline: auto;
   }
 
-  .crypto-section {
-    padding: 24px 0 64px;
+  .hero__orbit {
+    margin-top: 8px;
+  }
+
+  .crypto-orbit {
+    width: 100%;
+    aspect-ratio: auto;
   }
 
   .crypto-orbit__glow,
@@ -767,7 +926,7 @@ input {
   }
 }
 
-/* Mobile */
+/* Mobile — Figma M. HP */
 @media (max-width: 640px) {
   :root {
     --header-height: 72px;
@@ -778,29 +937,46 @@ input {
   }
 
   .logo__text {
+    font-size: 1rem;
     letter-spacing: 0.28em;
+  }
+
+  .mobile-menu {
+    width: 100%;
+    padding-inline: 32px;
   }
 
   .hero__layout {
     padding-top: calc(var(--header-height) + 24px);
-    padding-bottom: 32px;
-    gap: 28px;
+    gap: 24px;
   }
 
   .hero__title {
-    font-size: clamp(2.25rem, 12vw, 3.25rem);
+    font-size: clamp(2.375rem, 11vw, 3.25rem);
+    letter-spacing: 0.03em;
+  }
+
+  .hero__cta {
+    width: 100%;
+    max-width: 320px;
+    justify-content: space-between;
+  }
+
+  .hero__actions {
+    flex-direction: row;
+    justify-content: center;
   }
 
   .banking-card {
-    padding: 22px 20px 26px;
-    border-radius: 20px;
-  }
-
-  .crypto-section {
-    padding: 16px 0 48px;
+    padding: 24px 20px 28px;
+    border-radius: 18px;
   }
 
   .crypto-orbit__items {
     grid-template-columns: 1fr;
+  }
+
+  .footer {
+    padding-bottom: 40px;
   }
 }

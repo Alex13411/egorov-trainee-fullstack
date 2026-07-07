@@ -1,16 +1,22 @@
-import { readAuthFromUrl, startGoogleLogin, type AuthUser } from './services/auth'
+import { logout, resolveAuthUser, startGoogleLogin, type AuthUser } from './services/auth'
 import {
   CryptoPriceStream,
   formatChange,
   formatPrice,
   type CryptoTicker,
 } from './services/crypto'
-import { error, log, logOverlayAudit, mountDebugHud, bindGlobalPointerDiagnostics, warn } from './utils/debug'
+import { CTA_ARROW_ICON, FIGMA_COPY, VIDEO_ICON } from './content/figma'
+import { error, log, logOverlayAudit, bindGlobalPointerDiagnostics, warn } from './utils/debug'
 import './styles/main.css'
 
 log('main.ts loaded')
 
-const NAV_ITEMS = ['HOME', 'ABOUT US', 'PRODUCTS', 'CONTACT US']
+const NAV_ITEMS = [
+  { label: 'HOME', section: 'home' },
+  { label: 'ABOUT US', section: 'about' },
+  { label: 'PRODUCTS', section: 'products' },
+  { label: 'CONTACT US', section: 'contact' },
+] as const
 type ModalId = 'learn-more' | 'video'
 
 let eventsBound = false
@@ -45,15 +51,16 @@ function renderCryptoOrbit(tickers: CryptoTicker[]): string {
 function renderAuthButton(user: AuthUser | null): string {
   if (user) {
     return `
-      <div class="auth auth--signed-in">
-        ${
-          user.picture
-            ? `<img class="auth__avatar" src="${user.picture}" alt="${user.name}" width="32" height="32" />`
-            : ''
-        }
-        <span class="auth__name">${user.name}</span>
-      </div>
-    `
+    <div class="auth auth--signed-in">
+      ${
+        user.picture
+          ? `<img class="auth__avatar" src="${user.picture}" alt="${user.name}" width="32" height="32" />`
+          : ''
+      }
+      <span class="auth__name">${user.name}</span>
+      <button class="auth__logout" type="button" data-action="logout">Sign out</button>
+    </div>
+  `
   }
 
   return `
@@ -75,12 +82,11 @@ function renderModals(): string {
       <div class="modal__backdrop" data-action="close-modal"></div>
       <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="learn-more-title">
         <button class="modal__close" type="button" data-action="close-modal" aria-label="Close">×</button>
-        <h2 class="modal__title" id="learn-more-title">FROM THE FIELD OF ALL POSSIBILITY</h2>
+        <h2 class="modal__title" id="learn-more-title">${FIGMA_COPY.modalLearnMoreTitle}</h2>
         <p class="modal__text">
-          Kairos is a next-generation online banking platform built for real-time markets,
-          secure access, and seamless digital finance across currencies and crypto assets.
+          ${FIGMA_COPY.modalLearnMoreBody}
         </p>
-        <button class="modal__action" type="button" data-action="close-modal">Got it</button>
+        <button class="modal__action" type="button" data-action="close-modal">${FIGMA_COPY.modalLearnMoreAction}</button>
       </div>
     </div>
 
@@ -88,7 +94,7 @@ function renderModals(): string {
       <div class="modal__backdrop" data-action="close-modal"></div>
       <div class="modal__dialog modal__dialog--video" role="dialog" aria-modal="true" aria-labelledby="video-title">
         <button class="modal__close" type="button" data-action="close-modal" aria-label="Close">×</button>
-        <h2 class="modal__title modal__title--compact" id="video-title">Experience Kairos</h2>
+        <h2 class="modal__title modal__title--compact" id="video-title">${FIGMA_COPY.modalVideoTitle}</h2>
         <div class="modal__video-wrap">
           <video class="modal__video" controls playsinline preload="metadata">
             <source src="/videos/hero.mp4" type="video/mp4" />
@@ -104,13 +110,13 @@ function renderPage(user: AuthUser | null): string {
     <div class="page">
       <header class="header">
         <div class="container header__inner">
-          <a class="logo" href="#" aria-label="Kairos home">
+          <a class="logo" href="#home" data-section="home" aria-label="Kairos home">
             ${LOGO_MARK}
             <span class="logo__text">KAIROS</span>
           </a>
 
           <nav class="nav" aria-label="Main navigation">
-            ${NAV_ITEMS.map((item) => `<a class="nav__link" href="#">${item}</a>`).join('')}
+            ${NAV_ITEMS.map((item) => `<a class="nav__link" href="#${item.section}" data-section="${item.section}">${item.label}</a>`).join('')}
           </nav>
 
           <div class="header__actions">
@@ -122,14 +128,18 @@ function renderPage(user: AuthUser | null): string {
         </div>
       </header>
 
+      <button class="mobile-menu__backdrop" type="button" data-action="close-menu" aria-label="Close menu" hidden></button>
+
       <aside class="mobile-menu" data-mobile-menu hidden aria-label="Mobile navigation">
         <nav class="mobile-menu__nav">
-          ${NAV_ITEMS.map((item) => `<a class="mobile-menu__link" href="#">${item}</a>`).join('')}
-          ${user ? '' : '<button class="mobile-menu__auth" type="button" data-action="google-login">Sign in with Google</button>'}
+          ${NAV_ITEMS.map((item) => `<a class="mobile-menu__link" href="#${item.section}" data-section="${item.section}">${item.label}</a>`).join('')}
+          ${user
+            ? `<div class="mobile-menu__user">${user.picture ? `<img class="auth__avatar" src="${user.picture}" alt="" width="32" height="32" />` : ''}<span>${user.name}</span><button class="mobile-menu__auth" type="button" data-action="logout">Sign out</button></div>`
+            : '<button class="mobile-menu__auth" type="button" data-action="google-login">Sign in with Google</button>'}
         </nav>
       </aside>
 
-      <main class="hero" aria-label="Hero">
+      <main class="hero" id="home" aria-label="Hero">
         <div class="hero__media" aria-hidden="true">
           <video class="hero__video" autoplay muted loop playsinline preload="auto">
             <source src="/videos/hero.mp4" type="video/mp4" />
@@ -140,17 +150,25 @@ function renderPage(user: AuthUser | null): string {
         <div class="container hero__layout">
           <div class="hero__content">
             <h1 class="hero__title">
-              <span>FROM THE FIELD OF</span>
-              <span>ALL POSSIBILITY</span>
+              ${FIGMA_COPY.heroTitle.map((line) => `<span>${line}</span>`).join('')}
             </h1>
+            <p class="hero__subtitle">${FIGMA_COPY.heroSubtitle}</p>
             <div class="hero__actions">
-              <button class="hero__cta" type="button" data-action="open-modal" data-modal="learn-more">Learn More</button>
-              <button class="hero__cta hero__cta--ghost" type="button" data-action="open-modal" data-modal="video">Watch Video</button>
+              <button class="hero__cta" type="button" data-action="open-modal" data-modal-target="learn-more">
+                <span>${FIGMA_COPY.ctaPrimary}</span>
+                ${CTA_ARROW_ICON}
+              </button>
+              <button class="hero__cta hero__cta--icon" type="button" data-action="open-modal" data-modal-target="video" aria-label="Watch video">
+                ${VIDEO_ICON}
+              </button>
             </div>
           </div>
 
           <aside class="banking-card" aria-label="Online banking">
-            <h2 class="banking-card__title">ONLINE BANKING</h2>
+            <div class="banking-card__header">
+              <h2 class="banking-card__title">${FIGMA_COPY.bankingTitle}</h2>
+            </div>
+            <div class="banking-card__body">
             <div class="banking-card__tabs">
               <button class="banking-card__tab banking-card__tab--active" type="button" data-tab="login">Log in</button>
               <button class="banking-card__tab" type="button" data-tab="signup">Sign up</button>
@@ -170,18 +188,18 @@ function renderPage(user: AuthUser | null): string {
               </label>
               <a class="banking-card__forgot" href="#">Forgot password?</a>
               <button class="banking-card__submit" type="submit">Log in</button>
+              <button class="banking-card__learn-more" type="button" data-action="open-modal" data-modal-target="learn-more">${FIGMA_COPY.bankingLearnMore}</button>
             </form>
+            </div>
           </aside>
         </div>
-      </main>
 
-      <section class="crypto-section" aria-label="Live cryptocurrency prices">
-        <div class="container">
+        <div class="container hero__orbit" id="products">
           <div class="crypto-orbit">
             <div class="crypto-orbit__glow" aria-hidden="true"></div>
             <div class="crypto-orbit__ring crypto-orbit__ring--outer" aria-hidden="true"></div>
             <div class="crypto-orbit__ring crypto-orbit__ring--inner" aria-hidden="true"></div>
-            <button class="crypto-orbit__core" type="button" data-action="open-modal" data-modal="video" aria-label="Play video">
+            <button class="crypto-orbit__core" type="button" data-action="open-modal" data-modal-target="video" aria-label="Play video">
               <span class="crypto-orbit__play" aria-hidden="true"></span>
             </button>
             <div class="crypto-orbit__items">
@@ -189,7 +207,18 @@ function renderPage(user: AuthUser | null): string {
             </div>
           </div>
         </div>
-      </section>
+      </main>
+
+      <footer class="footer" id="contact" aria-label="Contact">
+        <div class="container footer__inner">
+          <div class="footer__brand">
+            ${LOGO_MARK}
+            <span class="logo__text">KAIROS</span>
+          </div>
+          <p class="footer__text">Online banking for the next generation of digital finance.</p>
+          <a class="footer__email" href="mailto:hello@kairos.bank">hello@kairos.bank</a>
+        </div>
+      </footer>
     </div>
   `
 }
@@ -218,14 +247,33 @@ function updateCryptoOrbit(container: HTMLElement, tickers: CryptoTicker[]): voi
   })
 }
 
+function ensurePageInteractive(): void {
+  document.body.classList.remove('modal-open')
+  document.querySelectorAll<HTMLElement>('.modal.is-open').forEach((modal) => {
+    modal.classList.remove('is-open')
+    modal.setAttribute('aria-hidden', 'true')
+  })
+  document.querySelectorAll<HTMLElement>('[data-action="open-modal"].is-open').forEach((button) => {
+    button.classList.remove('is-open')
+  })
+  log('ensurePageInteractive', {
+    bodyClass: document.body.className || '(empty)',
+    openModals: document.querySelectorAll('#modals-root .modal.is-open').length,
+  })
+}
+
 function closeAllModals(): void {
   log('closeAllModals')
-  document.querySelectorAll<HTMLElement>('.modal').forEach((modal) => {
+  document.querySelectorAll<HTMLElement>('#modals-root .modal').forEach((modal) => {
     modal.classList.remove('is-open')
     modal.setAttribute('aria-hidden', 'true')
     modal.querySelector<HTMLVideoElement>('.modal__video')?.pause()
   })
   document.body.classList.remove('modal-open')
+}
+
+function getModalElement(id: ModalId): HTMLElement | null {
+  return document.querySelector<HTMLElement>(`#modals-root .modal[data-modal="${id}"]`)
 }
 
 function setModal(id: ModalId, open: boolean): void {
@@ -238,16 +286,16 @@ function setModal(id: ModalId, open: boolean): void {
 
   closeAllModals()
 
-  const modal = document.querySelector<HTMLElement>(`[data-modal="${id}"]`)
+  const modal = getModalElement(id)
   if (!modal) {
-    warn('setModal: modal not found', id)
+    warn('setModal: modal not found in #modals-root', id)
     return
   }
 
   modal.classList.add('is-open')
   modal.setAttribute('aria-hidden', 'false')
   document.body.classList.add('modal-open')
-  log('setModal: opened', id)
+  log('setModal: opened', id, modal.className)
 
   const video = modal.querySelector<HTMLVideoElement>('.modal__video')
   if (video) {
@@ -264,10 +312,14 @@ function setMobileMenuOpen(root: HTMLElement, open: boolean): void {
   log('setMobileMenuOpen', open)
   const page = getPageRoot(root)
   const menu = root.querySelector<HTMLElement>('[data-mobile-menu]')
+  const backdrop = root.querySelector<HTMLElement>('.mobile-menu__backdrop')
   page.classList.toggle('page--menu-open', open)
   if (menu) {
     menu.hidden = !open
     menu.setAttribute('aria-hidden', open ? 'false' : 'true')
+  }
+  if (backdrop) {
+    backdrop.hidden = !open
   }
 }
 
@@ -297,10 +349,15 @@ function setAuthTab(root: HTMLElement, tab: 'login' | 'signup'): void {
 
 function handleAction(root: HTMLElement, actionEl: HTMLElement): void {
   const action = actionEl.dataset.action
-  log('handleAction', { action, modal: actionEl.dataset.modal })
+  log('handleAction', { action, modal: actionEl.dataset.modalTarget })
 
   if (action === 'google-login') {
     startGoogleLogin()
+    return
+  }
+
+  if (action === 'logout') {
+    logout()
     return
   }
 
@@ -317,9 +374,39 @@ function handleAction(root: HTMLElement, actionEl: HTMLElement): void {
   }
 
   if (action === 'open-modal') {
-    const modalId = actionEl.getAttribute('data-modal') as ModalId | null
+    const modalId = actionEl.getAttribute('data-modal-target') as ModalId | null
     if (modalId) setModal(modalId, true)
   }
+}
+
+function scrollToSection(root: HTMLElement, sectionId: string): void {
+  if (sectionId === 'about') {
+    setModal('learn-more', true)
+    setMobileMenuOpen(root, false)
+    return
+  }
+
+  const section = document.getElementById(sectionId)
+  if (!section) {
+    warn('scrollToSection: not found', sectionId)
+    return
+  }
+
+  log('scrollToSection', sectionId)
+  setMobileMenuOpen(root, false)
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+function bindNavigation(root: HTMLElement): void {
+  root.querySelectorAll<HTMLAnchorElement>('[data-section]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const sectionId = link.dataset.section
+      if (!sectionId) return
+
+      event.preventDefault()
+      scrollToSection(root, sectionId)
+    })
+  })
 }
 
 function bindDirectActions(root: HTMLElement): void {
@@ -331,7 +418,7 @@ function bindDirectActions(root: HTMLElement): void {
       log('direct click handler', {
         index,
         action: element.dataset.action,
-        modal: element.dataset.modal,
+        modal: element.dataset.modalTarget,
       })
       event.preventDefault()
       handleAction(root, element)
@@ -356,6 +443,7 @@ function bindEvents(root: HTMLElement): void {
   log('bindEvents: attaching listeners')
 
   bindDirectActions(root)
+  bindNavigation(root)
 
   document.querySelectorAll<HTMLElement>('#modals-root [data-action]').forEach((element) => {
     element.addEventListener('click', (event) => {
@@ -366,8 +454,9 @@ function bindEvents(root: HTMLElement): void {
   })
 
   root.querySelector('.banking-card__form')?.addEventListener('submit', (event) => {
-    log('form submit')
     event.preventDefault()
+    log('banking form submit -> google oauth')
+    startGoogleLogin()
   })
 
   document.addEventListener('keydown', (event) => {
@@ -396,7 +485,7 @@ function mountModals(): void {
 
 function mount(): void {
   log('mount: start')
-  mountDebugHud()
+  ensurePageInteractive()
   bindGlobalPointerDiagnostics()
 
   const root = document.querySelector<HTMLDivElement>('#app')
@@ -407,13 +496,14 @@ function mount(): void {
 
   mountModals()
 
-  const user = readAuthFromUrl()
+  const user = resolveAuthUser()
   root.innerHTML = renderPage(user)
   log('mount: page rendered')
 
   setMobileMenuOpen(root, false)
   bindEvents(root)
   document.body.dataset.appReady = 'true'
+  ensurePageInteractive()
 
   const buttons = root.querySelectorAll('button, a, input')
   log('mount: interactive elements', buttons.length)

@@ -17,6 +17,8 @@ app = FastAPI(title="Kairos Auth API", version="0.1.0")
 app.add_middleware(
     SessionMiddleware,
     secret_key=os.getenv("SECRET_KEY", "dev-only-change-me"),
+    same_site="lax",
+    https_only=False,
 )
 
 app.add_middleware(
@@ -42,9 +44,24 @@ async def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+def _oauth_configured(client_id: str, client_secret: str) -> bool:
+    placeholders = {"", "your-google-client-id.apps.googleusercontent.com", "your-google-client-secret"}
+    return bool(client_id and client_secret and client_id not in placeholders and client_secret not in placeholders)
+
+
+@app.get("/api/auth/status")
+async def auth_status() -> dict[str, bool | str]:
+    configured = _oauth_configured(settings.google_client_id, settings.google_client_secret)
+    return {
+        "configured": configured,
+        "redirect_uri": settings.google_redirect_uri,
+        "frontend_url": settings.frontend_url,
+    }
+
+
 @app.get("/api/auth/google/login")
 async def google_login(request: Request):
-    if not settings.google_client_id or not settings.google_client_secret:
+    if not _oauth_configured(settings.google_client_id, settings.google_client_secret):
         raise HTTPException(
             status_code=503,
             detail="Google OAuth is not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.",
@@ -59,7 +76,8 @@ async def google_callback(request: Request):
     try:
         token = await oauth.google.authorize_access_token(request)
     except Exception as exc:  # noqa: BLE001
-        raise HTTPException(status_code=400, detail=f"OAuth callback failed: {exc}") from exc
+        query = urlencode({"auth": "error", "message": str(exc)})
+        return RedirectResponse(url=f"{settings.frontend_url}/?{query}")
 
     userinfo = token.get("userinfo")
     if not userinfo:
@@ -73,9 +91,10 @@ async def google_callback(request: Request):
 
     query = urlencode(
         {
+            "auth": "success",
             "name": userinfo.get("name", ""),
             "email": userinfo.get("email", ""),
             "picture": userinfo.get("picture", ""),
         }
     )
-    return RedirectResponse(url=f"{settings.frontend_url}/?auth=success&{query}")
+    return RedirectResponse(url=f"{settings.frontend_url}/?{query}")
