@@ -347,6 +347,7 @@ function mount(): void {
   root.innerHTML = renderPage(user)
   setMobileMenuOpen(root, false)
   bindEvents(root)
+  document.body.dataset.appReady = 'true'
 
   const cryptoContainer = root.querySelector<HTMLElement>('.crypto-orbit__items')
   if (!cryptoContainer) return

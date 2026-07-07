@@ -53,6 +53,14 @@ input {
   min-height: 100vh;
 }
 
+.app-loading {
+  margin: 0;
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--muted);
+  font-family: var(--font-body);
+}
+
 .container {
   width: min(var(--container), calc(100% - 48px));
   margin-inline: auto;
