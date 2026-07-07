@@ -1,0 +1,361 @@
+:root {
+  --bg: #020814;
+  --bg-soft: #071426;
+  --text: #f5fbff;
+  --muted: #9db3c7;
+  --accent: #35d7ff;
+  --accent-strong: #00b7ff;
+  --card: rgba(8, 24, 44, 0.72);
+  --border: rgba(53, 215, 255, 0.25);
+  --success: #4ade80;
+  --danger: #f87171;
+  --container: min(1200px, calc(100% - 48px));
+  --font-display: "Segoe UI", system-ui, sans-serif;
+  --font-body: "Segoe UI", system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+}
+
+body {
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.page {
+  position: relative;
+}
+
+.header {
+  position: fixed;
+  inset: 24px 24px auto;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 24px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(2, 8, 20, 0.55);
+  backdrop-filter: blur(12px);
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.35em;
+  font-weight: 700;
+}
+
+.nav {
+  display: flex;
+  gap: 28px;
+  margin-left: auto;
+}
+
+.nav__link {
+  color: var(--muted);
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+}
+
+.nav__link:hover {
+  color: var(--text);
+}
+
+.auth {
+  margin-left: 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 10px 18px;
+  cursor: pointer;
+}
+
+.auth--signed-in {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth__avatar {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.burger {
+  display: none;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: transparent;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.burger span {
+  display: block;
+  height: 2px;
+  margin: 4px 0;
+  background: var(--text);
+}
+
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  align-items: center;
+  gap: 32px;
+  padding: 140px 24px 120px;
+  overflow: hidden;
+}
+
+.hero__video,
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.hero__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero__overlay {
+  background:
+    radial-gradient(circle at 70% 40%, rgba(0, 183, 255, 0.25), transparent 35%),
+    linear-gradient(180deg, rgba(2, 8, 20, 0.35), rgba(2, 8, 20, 0.85));
+}
+
+.hero__content,
+.banking-card {
+  position: relative;
+  z-index: 1;
+}
+
+.hero__content {
+  max-width: 560px;
+  margin-left: max(0px, calc((100vw - var(--container)) / 2));
+}
+
+.hero__eyebrow {
+  margin: 0 0 12px;
+  color: var(--accent);
+  letter-spacing: 0.3em;
+  font-size: 0.75rem;
+}
+
+.hero__title {
+  margin: 0 0 24px;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 0.95;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero__cta {
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  padding: 14px 28px;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+.banking-card {
+  width: min(420px, 100%);
+  margin-right: max(0px, calc((100vw - var(--container)) / 2));
+  margin-left: auto;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--card);
+  backdrop-filter: blur(16px);
+}
+
+.banking-card__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.banking-card__tab {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  padding: 12px;
+  cursor: pointer;
+}
+
+.banking-card__tab--active {
+  background: rgba(53, 215, 255, 0.12);
+  color: var(--text);
+}
+
+.banking-card__form {
+  display: grid;
+  gap: 16px;
+}
+
+.banking-card__form label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.banking-card__form input {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 14px 16px;
+}
+
+.banking-card__forgot {
+  color: var(--accent);
+  font-size: 0.85rem;
+}
+
+.banking-card__submit {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  color: #00111f;
+  font-weight: 700;
+  padding: 14px;
+  cursor: pointer;
+}
+
+.crypto-orbit {
+  position: relative;
+  padding: 80px 24px 120px;
+}
+
+.crypto-orbit__ring {
+  position: relative;
+  width: min(760px, 100%);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border: 1px solid rgba(53, 215, 255, 0.15);
+  border-radius: 50%;
+  box-shadow: inset 0 0 80px rgba(0, 183, 255, 0.08);
+}
+
+.crypto-orbit__loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+.crypto-orbit__item {
+  position: absolute;
+  width: 150px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(8, 24, 44, 0.85);
+  text-align: center;
+}
+
+.crypto-orbit__pair {
+  display: block;
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+.crypto-orbit__price {
+  display: block;
+  margin: 8px 0;
+  font-size: 1rem;
+}
+
+.crypto-orbit__change--up {
+  color: var(--success);
+}
+
+.crypto-orbit__change--down {
+  color: var(--danger);
+}
+
+.crypto-orbit__item--0 { top: 8%; left: 50%; transform: translateX(-50%); }
+.crypto-orbit__item--1 { top: 28%; right: 8%; }
+.crypto-orbit__item--2 { bottom: 28%; right: 8%; }
+.crypto-orbit__item--3 { bottom: 8%; left: 50%; transform: translateX(-50%); }
+.crypto-orbit__item--4 { bottom: 28%; left: 8%; }
+.crypto-orbit__item--5 { top: 28%; left: 8%; }
+
+@media (max-width: 1024px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding-top: 120px;
+  }
+
+  .hero__content,
+  .banking-card {
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    inset: 16px 16px auto;
+    border-radius: 24px;
+  }
+
+  .nav {
+    display: none;
+  }
+
+  .burger {
+    display: inline-block;
+    margin-left: auto;
+  }
+
+  .page--menu-open .nav {
+    position: fixed;
+    inset: 88px 16px auto;
+    display: grid;
+    gap: 16px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background: rgba(2, 8, 20, 0.95);
+  }
+}
