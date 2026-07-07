@@ -1,5 +1,5 @@
 import type { AuthUser } from '../services/auth'
-import { CTA_ARROW_ICON, FIGMA_COPY, VIDEO_ICON } from '../content/figma'
+import { CTA_ARROW_ICON, CTA_PLAY_ICON, FIGMA_COPY } from '../content/figma'
 import { renderAuthButton, renderMobileAuth } from './auth-button'
 import { LOGO_MARK, NAV_ITEMS } from './constants'
 
@@ -14,7 +14,7 @@ export function renderPage(user: AuthUser | null): string {
           </a>
 
           <nav class="nav" aria-label="Main navigation">
-            ${NAV_ITEMS.map((item) => `<a class="nav__link" href="#${item.section}" data-section="${item.section}">${item.label}</a>`).join('')}
+            ${NAV_ITEMS.map((item) => `<a class="nav__link${item.section === 'home' ? ' nav__link--active' : ''}" href="#${item.section}" data-section="${item.section}">${item.label}</a>`).join('')}
           </nav>
 
           <div class="header__actions">
@@ -50,12 +50,13 @@ export function renderPage(user: AuthUser | null): string {
             </h1>
             <p class="hero__subtitle">${FIGMA_COPY.heroSubtitle}</p>
             <div class="hero__actions">
-              <button class="hero__cta" type="button" data-action="open-modal" data-modal-target="learn-more">
-                <span>${FIGMA_COPY.ctaPrimary}</span>
-                ${CTA_ARROW_ICON}
+              <button class="hero__cta hero__cta--split hero__cta--primary" type="button" data-action="open-modal" data-modal-target="learn-more">
+                <span class="hero__cta__label">${FIGMA_COPY.ctaPrimary}</span>
+                <span class="hero__cta__icon">${CTA_ARROW_ICON}</span>
               </button>
-              <button class="hero__cta hero__cta--icon" type="button" data-action="open-modal" data-modal-target="video" aria-label="Watch video">
-                ${VIDEO_ICON}
+              <button class="hero__cta hero__cta--split hero__cta--ghost" type="button" data-action="open-modal" data-modal-target="video">
+                <span class="hero__cta__label">${FIGMA_COPY.ctaSecondary}</span>
+                <span class="hero__cta__icon hero__cta__icon--play">${CTA_PLAY_ICON}</span>
               </button>
             </div>
           </div>
@@ -90,7 +91,7 @@ export function renderPage(user: AuthUser | null): string {
           </aside>
         </div>
 
-        <div class="container hero__orbit" id="products">
+        <div class="container hero__orbit" id="projects">
           <div class="crypto-orbit">
             <div class="crypto-orbit__glow" aria-hidden="true"></div>
             <div class="crypto-orbit__ring crypto-orbit__ring--outer" aria-hidden="true"></div>

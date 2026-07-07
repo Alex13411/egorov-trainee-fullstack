@@ -1,7 +1,7 @@
 export const NAV_ITEMS = [
   { label: 'HOME', section: 'home' },
   { label: 'ABOUT US', section: 'about' },
-  { label: 'PRODUCTS', section: 'products' },
+  { label: 'PROJECTS', section: 'projects' },
   { label: 'CONTACT US', section: 'contact' },
 ] as const
 

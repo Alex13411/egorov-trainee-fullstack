@@ -7,6 +7,7 @@
   --accent-strong: #00b8ff;
   --purple: #6b4eff;
   --purple-dark: #4a2fd9;
+  --figma-purple: #2a0057;
   --gold: #d4af37;
   --gold-strong: #c9a227;
   --card: rgba(5, 18, 36, 0.78);
@@ -16,7 +17,7 @@
   --danger: #ff7b7b;
   --container: 1320px;
   --header-height: 88px;
-  --font-display: "Barlow Condensed", "Segoe UI", sans-serif;
+  --font-display: "Michroma", "Barlow Condensed", sans-serif;
   --font-body: "Barlow", "Segoe UI", sans-serif;
 }
 
@@ -141,6 +142,13 @@ input {
 
 .nav__link:hover {
   color: var(--text);
+}
+
+.nav__link--active {
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  padding: 10px 18px;
 }
 
 .header__actions {
@@ -293,22 +301,62 @@ input {
 }
 
 .hero__cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
   border: 0;
-  border-radius: 999px;
-  background: #ffffff;
-  color: #0a1128;
-  min-width: 0;
-  padding: 12px 12px 12px 24px;
-  font-family: var(--font-display);
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
   cursor: pointer;
+  font-family: var(--font-display);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero__cta--split {
+  display: inline-grid;
+  grid-template-columns: 1fr auto;
+  align-items: stretch;
+  min-height: 52px;
+  min-width: 180px;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.hero__cta__label {
+  display: grid;
+  place-items: center;
+  padding: 14px 22px;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.hero__cta__icon {
+  display: grid;
+  place-items: center;
+  min-width: 56px;
+  padding: 0 16px;
+  clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.hero__cta--primary {
+  background: #ffffff;
+  color: var(--figma-purple);
+}
+
+.hero__cta--primary .hero__cta__icon {
+  background: var(--purple-dark);
+  color: #ffffff;
+}
+
+.hero__cta--ghost {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+}
+
+.hero__cta--ghost .hero__cta__icon {
+  background: #ffffff;
+  color: var(--figma-purple);
+}
+
+.hero__cta--ghost .hero__cta__icon--play {
+  clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%);
 }
 
 .hero__cta:hover {
@@ -319,20 +367,12 @@ input {
 .hero__actions {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
+  align-items: stretch;
+  gap: 14px;
 }
 
-.hero__cta--icon {
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  padding: 0;
-  border-radius: 14px;
-  color: #0a1128;
-}
-
-.hero__cta--ghost {
+.hero__cta--icon,
+.hero__cta--ghost-old {
   display: none;
 }
 
@@ -784,6 +824,48 @@ input {
   cursor: pointer;
 }
 
+.modal__dialog--learn-more {
+  width: min(720px, 100%);
+  max-height: min(88vh, 920px);
+  overflow: auto;
+  padding: 40px 36px 32px;
+  border: 0;
+  border-radius: 0;
+  background: #ffffff;
+  color: var(--figma-purple);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+.modal__close--light {
+  border-color: rgba(42, 0, 87, 0.15);
+  color: var(--figma-purple);
+}
+
+.modal__title--learn-more {
+  display: grid;
+  gap: 0;
+  margin-bottom: 28px;
+  font-size: clamp(1.5rem, 3vw, 2.125rem);
+  line-height: 1.05;
+  letter-spacing: 0.06em;
+  color: var(--figma-purple);
+}
+
+.modal__text--learn-more {
+  margin: 0 0 20px;
+  color: var(--figma-purple);
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  line-height: 1.75;
+  letter-spacing: 0.03em;
+}
+
+.modal__action--learn-more {
+  margin-top: 8px;
+  background: var(--figma-purple);
+  color: #ffffff;
+}
+
 .modal__dialog--video {
   width: min(920px, 100%);
   padding: 24px;
@@ -979,15 +1061,14 @@ input {
     letter-spacing: 0.03em;
   }
 
-  .hero__cta {
-    width: 100%;
-    max-width: 320px;
-    justify-content: space-between;
+  .hero__actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .hero__actions {
-    flex-direction: row;
-    justify-content: center;
+  .hero__cta--split {
+    width: 100%;
+    max-width: 320px;
   }
 
   .hero__subtitle {
