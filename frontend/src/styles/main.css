@@ -170,28 +170,6 @@ input {
   background: var(--text);
 }
 
-.mobile-menu {
-  position: fixed;
-  inset: var(--header-height) 0 auto;
-  z-index: 25;
-  padding: 16px 24px 24px;
-  background: rgba(1, 6, 17, 0.96);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(16px);
-}
-
-.mobile-menu__nav {
-  display: grid;
-  gap: 18px;
-}
-
-.mobile-menu__link {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  letter-spacing: 0.16em;
-  color: var(--muted);
-}
-
 /* Hero */
 .hero {
   position: relative;
@@ -262,6 +240,16 @@ input {
 .hero__cta:hover {
   background: rgba(47, 213, 255, 0.12);
   border-color: var(--accent);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hero__cta--ghost {
+  background: transparent;
 }
 
 /* Banking card */
@@ -363,6 +351,79 @@ input {
   cursor: pointer;
 }
 
+.banking-card--signup .banking-card__forgot {
+  display: none;
+}
+
+.banking-card--signup .field--signup-only {
+  display: grid;
+}
+
+.field--signup-only {
+  display: none;
+}
+
+.mobile-menu__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 24;
+  border: 0;
+  background: rgba(1, 6, 17, 0.55);
+  backdrop-filter: blur(2px);
+  cursor: pointer;
+}
+
+.mobile-menu__backdrop[hidden] {
+  display: none;
+}
+
+.mobile-menu {
+  position: fixed;
+  inset: 0 0 0 auto;
+  z-index: 25;
+  width: min(320px, 86vw);
+  padding: calc(var(--header-height) + 24px) 24px 32px;
+  border-left: 1px solid var(--border);
+  background: rgba(1, 6, 17, 0.98);
+  backdrop-filter: blur(16px);
+  transform: translateX(100%);
+  transition: transform 0.28s ease;
+}
+
+.mobile-menu[hidden] {
+  display: block;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.page--menu-open .mobile-menu {
+  transform: translateX(0);
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.mobile-menu__nav {
+  display: grid;
+  gap: 18px;
+}
+
+.mobile-menu__link {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+}
+
+.mobile-menu__auth {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
 /* Crypto section */
 .crypto-section {
   position: relative;
@@ -380,8 +441,7 @@ input {
 }
 
 .crypto-orbit__glow,
-.crypto-orbit__ring,
-.crypto-orbit__core {
+.crypto-orbit__ring {
   position: absolute;
   inset: 0;
   border-radius: 50%;
@@ -405,9 +465,30 @@ input {
 }
 
 .crypto-orbit__core {
+  position: absolute;
   inset: 38%;
   border: 1px solid rgba(47, 213, 255, 0.18);
+  border-radius: 50%;
   background: radial-gradient(circle, rgba(47, 213, 255, 0.08), rgba(1, 6, 17, 0.2));
+  cursor: pointer;
+  z-index: 2;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.crypto-orbit__core:hover {
+  border-color: rgba(47, 213, 255, 0.45);
+  transform: scale(1.03);
+}
+
+.crypto-orbit__play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 18px;
+  height: 18px;
+  border-style: solid;
+  border-width: 9px 0 9px 16px;
+  border-color: transparent transparent transparent var(--accent);
 }
 
 .crypto-orbit__items {
@@ -540,6 +621,30 @@ input {
   cursor: pointer;
 }
 
+.modal__dialog--video {
+  width: min(920px, 100%);
+  padding: 24px;
+}
+
+.modal__title--compact {
+  margin-bottom: 12px;
+  font-size: 1.25rem;
+}
+
+.modal__video-wrap {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #000;
+}
+
+.modal__video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
 /* Tablet */
 @media (max-width: 1100px) {
   .nav {
@@ -567,6 +672,10 @@ input {
 
   .hero__title {
     justify-items: center;
+  }
+
+  .hero__actions {
+    justify-content: center;
   }
 
   .banking-card {

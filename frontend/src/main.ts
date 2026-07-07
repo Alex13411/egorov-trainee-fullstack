@@ -8,6 +8,7 @@ import {
 import './styles/main.css'
 
 const NAV_ITEMS = ['HOME', 'ABOUT US', 'PRODUCTS', 'CONTACT US']
+type ModalId = 'learn-more' | 'video'
 
 const LOGO_MARK = `
   <svg class="logo__mark" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
@@ -86,11 +87,13 @@ function renderPage(user: AuthUser | null): string {
         </div>
       </header>
 
-      <div class="mobile-menu" data-mobile-menu hidden>
-        <nav class="mobile-menu__nav" aria-label="Mobile navigation">
+      <div class="mobile-menu__backdrop" data-mobile-backdrop hidden data-action="close-menu"></div>
+      <aside class="mobile-menu" data-mobile-menu hidden aria-label="Mobile navigation">
+        <nav class="mobile-menu__nav">
           ${NAV_ITEMS.map((item) => `<a class="mobile-menu__link" href="#">${item}</a>`).join('')}
+          ${user ? '' : '<button class="mobile-menu__auth" type="button" data-action="google-login">Sign in with Google</button>'}
         </nav>
-      </div>
+      </aside>
 
       <section class="hero" aria-label="Hero">
         <video class="hero__video" autoplay muted loop playsinline preload="auto">
@@ -104,7 +107,10 @@ function renderPage(user: AuthUser | null): string {
               <span>FROM THE FIELD OF</span>
               <span>ALL POSSIBILITY</span>
             </h1>
-            <button class="hero__cta" type="button" data-action="learn-more">Learn More</button>
+            <div class="hero__actions">
+              <button class="hero__cta" type="button" data-action="open-modal" data-modal="learn-more">Learn More</button>
+              <button class="hero__cta hero__cta--ghost" type="button" data-action="open-modal" data-modal="video">Watch Video</button>
+            </div>
           </div>
 
           <aside class="banking-card" aria-label="Online banking">
@@ -114,6 +120,10 @@ function renderPage(user: AuthUser | null): string {
               <button class="banking-card__tab" type="button" data-tab="signup">Sign up</button>
             </div>
             <form class="banking-card__form">
+              <label class="field field--signup-only" hidden>
+                <span class="field__label">Full name</span>
+                <input class="field__input" type="text" name="name" placeholder="Enter your name" autocomplete="name" />
+              </label>
               <label class="field">
                 <span class="field__label">Email</span>
                 <input class="field__input" type="email" name="email" placeholder="Enter your email" autocomplete="email" />
@@ -135,7 +145,9 @@ function renderPage(user: AuthUser | null): string {
             <div class="crypto-orbit__glow" aria-hidden="true"></div>
             <div class="crypto-orbit__ring crypto-orbit__ring--outer" aria-hidden="true"></div>
             <div class="crypto-orbit__ring crypto-orbit__ring--inner" aria-hidden="true"></div>
-            <div class="crypto-orbit__core" aria-hidden="true"></div>
+            <button class="crypto-orbit__core" type="button" data-action="open-modal" data-modal="video" aria-label="Play video">
+              <span class="crypto-orbit__play" aria-hidden="true"></span>
+            </button>
             <div class="crypto-orbit__items">
               <p class="crypto-orbit__loading">Loading live prices…</p>
             </div>
@@ -153,6 +165,19 @@ function renderPage(user: AuthUser | null): string {
             secure access, and seamless digital finance across currencies and crypto assets.
           </p>
           <button class="modal__action" type="button" data-action="close-modal">Got it</button>
+        </div>
+      </div>
+
+      <div class="modal modal--video" data-modal="video" hidden>
+        <div class="modal__backdrop" data-action="close-modal"></div>
+        <div class="modal__dialog modal__dialog--video" role="dialog" aria-modal="true" aria-labelledby="video-title">
+          <button class="modal__close" type="button" data-action="close-modal" aria-label="Close">×</button>
+          <h2 class="modal__title modal__title--compact" id="video-title">Experience Kairos</h2>
+          <div class="modal__video-wrap">
+            <video class="modal__video" controls playsinline preload="metadata">
+              <source src="/videos/hero.mp4" type="video/mp4" />
+            </video>
+          </div>
         </div>
       </div>
     </div>
@@ -182,18 +207,59 @@ function updateCryptoOrbit(container: HTMLElement, tickers: CryptoTicker[]): voi
   })
 }
 
-function setModalOpen(root: HTMLElement, open: boolean): void {
-  const modal = root.querySelector<HTMLElement>('[data-modal="learn-more"]')
+function setModal(root: HTMLElement, id: ModalId, open: boolean): void {
+  root.querySelectorAll<HTMLElement>('.modal').forEach((modal) => {
+    modal.hidden = true
+  })
+
+  const modal = root.querySelector<HTMLElement>(`[data-modal="${id}"]`)
   if (!modal) return
 
   modal.hidden = !open
   document.body.classList.toggle('modal-open', open)
+
+  const video = modal.querySelector<HTMLVideoElement>('.modal__video')
+  if (!video) return
+
+  if (open) {
+    video.currentTime = 0
+    void video.play()
+  } else {
+    video.pause()
+    video.currentTime = 0
+  }
+}
+
+function closeAllModals(root: HTMLElement): void {
+  root.querySelectorAll<HTMLElement>('.modal').forEach((modal) => {
+    modal.hidden = true
+    modal.querySelector<HTMLVideoElement>('.modal__video')?.pause()
+  })
+  document.body.classList.remove('modal-open')
 }
 
 function setMobileMenuOpen(root: HTMLElement, open: boolean): void {
   const menu = root.querySelector<HTMLElement>('[data-mobile-menu]')
+  const backdrop = root.querySelector<HTMLElement>('[data-mobile-backdrop]')
   root.classList.toggle('page--menu-open', open)
   if (menu) menu.hidden = !open
+  if (backdrop) backdrop.hidden = !open
+}
+
+function setAuthTab(root: HTMLElement, tab: 'login' | 'signup'): void {
+  const card = root.querySelector('.banking-card')
+  if (!card) return
+
+  card.classList.toggle('banking-card--signup', tab === 'signup')
+
+  const submit = root.querySelector<HTMLButtonElement>('.banking-card__submit')
+  if (submit) {
+    submit.textContent = tab === 'signup' ? 'Sign up' : 'Log in'
+  }
+
+  root.querySelectorAll<HTMLButtonElement>('.banking-card__tab').forEach((button) => {
+    button.classList.toggle('banking-card__tab--active', button.dataset.tab === tab)
+  })
 }
 
 function mount(): void {
@@ -216,8 +282,8 @@ function mount(): void {
 }
 
 function bindEvents(root: HTMLElement, user: AuthUser | null): void {
-  root.querySelector('[data-action="google-login"]')?.addEventListener('click', () => {
-    startGoogleLogin()
+  root.querySelectorAll('[data-action="google-login"]').forEach((button) => {
+    button.addEventListener('click', () => startGoogleLogin())
   })
 
   root.querySelector('[data-action="toggle-menu"]')?.addEventListener('click', () => {
@@ -225,38 +291,39 @@ function bindEvents(root: HTMLElement, user: AuthUser | null): void {
     setMobileMenuOpen(root, !isOpen)
   })
 
-  root.querySelectorAll('[data-action="learn-more"]').forEach((button) => {
-    button.addEventListener('click', () => setModalOpen(root, true))
+  root.querySelector('[data-action="close-menu"]')?.addEventListener('click', () => {
+    setMobileMenuOpen(root, false)
+  })
+
+  root.querySelectorAll('[data-action="open-modal"]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const modalId = button.getAttribute('data-modal') as ModalId | null
+      if (modalId) setModal(root, modalId, true)
+    })
   })
 
   root.querySelectorAll('[data-action="close-modal"]').forEach((button) => {
-    button.addEventListener('click', () => setModalOpen(root, false))
+    button.addEventListener('click', () => closeAllModals(root))
   })
 
   root.querySelector('.banking-card__form')?.addEventListener('submit', (event) => {
     event.preventDefault()
   })
 
-  const tabs = root.querySelectorAll<HTMLButtonElement>('.banking-card__tab')
-  tabs.forEach((tab) => {
+  root.querySelectorAll<HTMLButtonElement>('.banking-card__tab').forEach((tab) => {
     tab.addEventListener('click', () => {
-      tabs.forEach((item) => item.classList.remove('banking-card__tab--active'))
-      tab.classList.add('banking-card__tab--active')
-
-      const submit = root.querySelector<HTMLButtonElement>('.banking-card__submit')
-      if (submit) {
-        submit.textContent = tab.dataset.tab === 'signup' ? 'Sign up' : 'Log in'
-      }
+      const nextTab = tab.dataset.tab === 'signup' ? 'signup' : 'login'
+      setAuthTab(root, nextTab)
     })
   })
 
   if (user) {
-    root.querySelector('.banking-card__tab[data-tab="login"]')?.classList.add('banking-card__tab--active')
+    setAuthTab(root, 'login')
   }
 
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
-      setModalOpen(root, false)
+      closeAllModals(root)
       setMobileMenuOpen(root, false)
     }
   })
