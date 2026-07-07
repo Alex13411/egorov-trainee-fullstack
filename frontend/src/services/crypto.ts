@@ -1,6 +1,11 @@
+import { CRYPTO_CATALOG, getCryptoAsset, listWatchlistIds, type CryptoAsset } from './crypto-catalog'
+import type { CryptoWatchlist } from './crypto-watchlist'
+
 export type CryptoTicker = {
-  symbol: string
-  label: string
+  id: string
+  name: string
+  icon: string
+  color: string
   price: number
   changePercent: number
 }
@@ -11,52 +16,66 @@ type BinanceStreamTicker = {
   P: string
 }
 
-const SYMBOLS: Array<{ stream: string; label: string }> = [
-  { stream: 'btcusdt', label: 'BTC/USD' },
-  { stream: 'ethusdt', label: 'ETH/USD' },
-  { stream: 'bnbusdt', label: 'BNB/USD' },
-  { stream: 'solusdt', label: 'SOL/USD' },
-  { stream: 'xrpusdt', label: 'XRP/USD' },
-  { stream: 'adausdt', label: 'ADA/USD' },
-]
-
-const streams = SYMBOLS.map(({ stream }) => `${stream}@ticker`).join('/')
-const WS_URL = `wss://stream.binance.com:9443/stream?streams=${streams}`
 const UPDATE_INTERVAL_MS = 500
+
+function buildWsUrl(streams: string[]): string {
+  const query = streams.map((stream) => `${stream}@ticker`).join('/')
+  return `wss://stream.binance.com:9443/stream?streams=${query}`
+}
+
+function createTicker(asset: CryptoAsset): CryptoTicker {
+  return {
+    id: asset.id,
+    name: asset.name,
+    icon: asset.icon,
+    color: asset.color,
+    price: asset.staticPrice ?? 0,
+    changePercent: asset.staticPrice ? 0 : 0,
+  }
+}
 
 export class CryptoPriceStream {
   private socket: WebSocket | null = null
   private reconnectTimer: number | null = null
   private flushTimer: number | null = null
   private readonly prices = new Map<string, CryptoTicker>()
-  private readonly onUpdate: (tickers: CryptoTicker[]) => void
+  private readonly onUpdate: (tickers: Map<string, CryptoTicker>) => void
+  private readonly liveStreams: string[]
 
-  constructor(onUpdate: (tickers: CryptoTicker[]) => void) {
+  constructor(watchlist: CryptoWatchlist, onUpdate: (tickers: Map<string, CryptoTicker>) => void) {
     this.onUpdate = onUpdate
-    for (const { stream, label } of SYMBOLS) {
-      this.prices.set(stream, {
-        symbol: stream.toUpperCase(),
-        label,
-        price: 0,
-        changePercent: 0,
-      })
+    this.liveStreams = listWatchlistIds(watchlist)
+      .map((id) => getCryptoAsset(id))
+      .filter((asset): asset is CryptoAsset => Boolean(asset && asset.stream))
+      .map((asset) => asset.stream as string)
+
+    for (const id of listWatchlistIds(watchlist)) {
+      const asset = getCryptoAsset(id)
+      if (!asset) continue
+      this.prices.set(id, createTicker(asset))
     }
   }
 
   connect(): void {
+    this.flushNow()
+
+    if (!this.liveStreams.length) return
+
     this.socket?.close()
-    this.socket = new WebSocket(WS_URL)
+    this.socket = new WebSocket(buildWsUrl(this.liveStreams))
 
     this.socket.addEventListener('message', (event) => {
       const payload = JSON.parse(event.data as string) as { data: BinanceStreamTicker }
       const ticker = payload.data
       const stream = ticker.s.toLowerCase()
-      const meta = SYMBOLS.find((item) => item.stream === stream)
-      if (!meta) return
+      const asset = Object.values(CRYPTO_CATALOG).find((item) => item.stream === stream)
+      if (!asset) return
 
-      this.prices.set(stream, {
-        symbol: ticker.s,
-        label: meta.label,
+      this.prices.set(asset.id, {
+        id: asset.id,
+        name: asset.name,
+        icon: asset.icon,
+        color: asset.color,
         price: Number(ticker.c),
         changePercent: Number(ticker.P),
       })
@@ -91,8 +110,12 @@ export class CryptoPriceStream {
 
     this.flushTimer = window.setTimeout(() => {
       this.flushTimer = null
-      this.onUpdate(Array.from(this.prices.values()))
+      this.onUpdate(new Map(this.prices))
     }, UPDATE_INTERVAL_MS)
+  }
+
+  private flushNow(): void {
+    this.onUpdate(new Map(this.prices))
   }
 
   private scheduleReconnect(): void {
@@ -110,23 +133,21 @@ export function formatPrice(value: number): string {
   }
 
   if (value >= 1000) {
-    return value.toLocaleString('en-US', {
+    return `$${value.toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    })
+    })}`
   }
 
-  return value.toLocaleString('en-US', {
+  if (value >= 1) {
+    return `$${value.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 4,
+    })}`
+  }
+
+  return `$${value.toLocaleString('en-US', {
     minimumFractionDigits: 4,
-    maximumFractionDigits: 4,
-  })
-}
-
-export function formatChange(value: number): string {
-  if (value === 0) {
-    return '—'
-  }
-
-  const sign = value >= 0 ? '+' : ''
-  return `${sign}${value.toFixed(2)}%`
+    maximumFractionDigits: 6,
+  })}`
 }

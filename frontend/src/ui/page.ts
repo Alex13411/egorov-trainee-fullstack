@@ -96,11 +96,21 @@ export function renderPage(user: AuthUser | null): string {
             <div class="crypto-orbit__glow" aria-hidden="true"></div>
             <div class="crypto-orbit__ring crypto-orbit__ring--outer" aria-hidden="true"></div>
             <div class="crypto-orbit__ring crypto-orbit__ring--inner" aria-hidden="true"></div>
-            <button class="crypto-orbit__core" type="button" data-action="open-modal" data-modal-target="video" aria-label="Play video">
-              <span class="crypto-orbit__play" aria-hidden="true"></span>
-            </button>
-            <div class="crypto-orbit__items">
-              <p class="crypto-orbit__loading">Loading live prices…</p>
+            <div class="crypto-orbit__layout">
+              <div class="crypto-orbit__column crypto-orbit__column--left" aria-label="Cryptocurrency prices left"></div>
+              <div class="crypto-orbit__hub">
+                <h2 class="crypto-orbit__hub-title">${FIGMA_COPY.cryptoHubTitle}</h2>
+                <button
+                  class="crypto-orbit__add"
+                  type="button"
+                  data-action="open-modal"
+                  data-modal-target="add-crypto"
+                >
+                  ${FIGMA_COPY.cryptoAddLabel}
+                  <span class="crypto-orbit__add-arrow" aria-hidden="true">›</span>
+                </button>
+              </div>
+              <div class="crypto-orbit__column crypto-orbit__column--right" aria-label="Cryptocurrency prices right"></div>
             </div>
           </div>
         </div>

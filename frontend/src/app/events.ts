@@ -1,5 +1,7 @@
 import { logout, startGoogleLogin } from '../services/auth'
+import { addToWatchlist } from '../services/crypto-watchlist'
 import type { ModalId } from '../ui/constants'
+import { CRYPTO_UPDATED_EVENT } from './crypto-events'
 import { closeAllModals, setModal } from './modals'
 import { isMobileMenuOpen, setAuthTab, setMobileMenuOpen } from './ui-state'
 
@@ -44,6 +46,16 @@ function handleAction(root: HTMLElement, actionEl: HTMLElement): void {
   if (action === 'open-modal') {
     const modalId = actionEl.getAttribute('data-modal-target') as ModalId | null
     if (modalId) setModal(modalId, true)
+    return
+  }
+
+  if (action === 'add-crypto') {
+    const cryptoId = actionEl.dataset.cryptoId
+    if (!cryptoId) return
+    if (addToWatchlist(cryptoId)) {
+      closeAllModals()
+      window.dispatchEvent(new CustomEvent(CRYPTO_UPDATED_EVENT))
+    }
   }
 }
 

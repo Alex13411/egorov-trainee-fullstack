@@ -14,6 +14,10 @@ export const FIGMA_COPY = {
   ] as const,
   modalLearnMoreAction: 'Close',
   modalVideoTitle: 'Play Video',
+  cryptoHubTitle: 'ONLINE BANKING',
+  cryptoAddLabel: 'Add a Cryptocurrency',
+  modalAddCryptoTitle: 'Add a Cryptocurrency',
+  modalAddCryptoHint: 'Choose a coin to add to your live dashboard.',
 } as const
 
 export const CTA_ARROW_ICON = `

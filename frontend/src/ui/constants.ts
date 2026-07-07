@@ -5,7 +5,7 @@ export const NAV_ITEMS = [
   { label: 'CONTACT US', section: 'contact' },
 ] as const
 
-export type ModalId = 'learn-more' | 'video'
+export type ModalId = 'learn-more' | 'video' | 'add-crypto'
 
 export const LOGO_MARK = `
   <svg class="logo__mark" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
