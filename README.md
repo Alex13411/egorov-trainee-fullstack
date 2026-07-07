@@ -11,9 +11,45 @@ Landing page for the Egorov Agency trainee assignment.
 ## Project structure
 
 ```text
-frontend/   # Vite app
-backend/    # FastAPI auth API
+egorov-trainee-fullstack/
+├── frontend/                 # Vite + TypeScript landing page
+│   └── src/
+│       ├── main.ts           # entry point
+│       ├── app/              # mount, events, modals, UI state
+│       ├── ui/               # HTML templates (page, auth, crypto, modals)
+│       ├── services/         # auth + Binance WebSocket
+│       ├── content/          # Figma copy strings
+│       ├── utils/            # shared helpers (html escaping)
+│       └── styles/main.css
+├── backend/                  # FastAPI Google OAuth API
+│   └── app/
+│       ├── main.py           # app factory + middleware
+│       ├── config.py         # environment settings
+│       ├── oauth.py          # Google OAuth client setup
+│       └── routes/           # health + auth endpoints
+├── render.yaml               # backend deploy
+└── dev.ps1                   # local dev script
 ```
+
+## Architecture
+
+The project is a small **monorepo** with a static frontend and a thin auth API.
+
+| Layer | Role |
+|-------|------|
+| **`ui/`** | Builds HTML from Figma copy. No business logic. |
+| **`services/`** | Auth flow + live crypto prices. Reusable from any UI. |
+| **`app/`** | Wires the page together: mount, events, modals, menu state. |
+| **`backend/routes/`** | HTTP endpoints only. OAuth setup lives in `oauth.py`. |
+
+**Data flow:**
+
+1. User clicks **Sign in with Google** → frontend redirects to backend `/api/auth/google/login`
+2. Backend completes OAuth with Google → redirects back to frontend with user info in the URL
+3. Frontend saves user in `sessionStorage` and re-renders the header
+4. Crypto prices stream directly from Binance WebSocket to the browser (no backend proxy)
+
+This keeps the backend minimal (as required by the task) while the frontend stays readable without a UI framework.
 
 ## Prerequisites
 
