@@ -6,10 +6,7 @@ import {
   type CryptoTicker,
 } from './services/crypto'
 import { CTA_ARROW_ICON, FIGMA_COPY, VIDEO_ICON } from './content/figma'
-import { error, log, logOverlayAudit, bindGlobalPointerDiagnostics, warn } from './utils/debug'
 import './styles/main.css'
-
-log('main.ts loaded')
 
 const NAV_ITEMS = [
   { label: 'HOME', section: 'home' },
@@ -133,9 +130,11 @@ function renderPage(user: AuthUser | null): string {
       <aside class="mobile-menu" data-mobile-menu hidden aria-label="Mobile navigation">
         <nav class="mobile-menu__nav">
           ${NAV_ITEMS.map((item) => `<a class="mobile-menu__link" href="#${item.section}" data-section="${item.section}">${item.label}</a>`).join('')}
-          ${user
-            ? `<div class="mobile-menu__user">${user.picture ? `<img class="auth__avatar" src="${user.picture}" alt="" width="32" height="32" />` : ''}<span>${user.name}</span><button class="mobile-menu__auth" type="button" data-action="logout">Sign out</button></div>`
-            : '<button class="mobile-menu__auth" type="button" data-action="google-login">Sign in with Google</button>'}
+          ${
+            user
+              ? `<div class="mobile-menu__user">${user.picture ? `<img class="auth__avatar" src="${user.picture}" alt="" width="32" height="32" />` : ''}<span>${user.name}</span><button class="mobile-menu__auth" type="button" data-action="logout">Sign out</button></div>`
+              : '<button class="mobile-menu__auth" type="button" data-action="google-login">Sign in with Google</button>'
+          }
         </nav>
       </aside>
 
@@ -169,27 +168,27 @@ function renderPage(user: AuthUser | null): string {
               <h2 class="banking-card__title">${FIGMA_COPY.bankingTitle}</h2>
             </div>
             <div class="banking-card__body">
-            <div class="banking-card__tabs">
-              <button class="banking-card__tab banking-card__tab--active" type="button" data-tab="login">Log in</button>
-              <button class="banking-card__tab" type="button" data-tab="signup">Sign up</button>
-            </div>
-            <form class="banking-card__form">
-              <label class="field field--signup-only" hidden>
-                <span class="field__label">Full name</span>
-                <input class="field__input" type="text" name="name" placeholder="Enter your name" autocomplete="name" />
-              </label>
-              <label class="field">
-                <span class="field__label">Email</span>
-                <input class="field__input" type="email" name="email" placeholder="Enter your email" autocomplete="email" />
-              </label>
-              <label class="field">
-                <span class="field__label">Password</span>
-                <input class="field__input" type="password" name="password" placeholder="Enter your password" autocomplete="current-password" />
-              </label>
-              <a class="banking-card__forgot" href="#">Forgot password?</a>
-              <button class="banking-card__submit" type="submit">Log in</button>
-              <button class="banking-card__learn-more" type="button" data-action="open-modal" data-modal-target="learn-more">${FIGMA_COPY.bankingLearnMore}</button>
-            </form>
+              <div class="banking-card__tabs">
+                <button class="banking-card__tab banking-card__tab--active" type="button" data-tab="login">Log in</button>
+                <button class="banking-card__tab" type="button" data-tab="signup">Sign up</button>
+              </div>
+              <form class="banking-card__form">
+                <label class="field field--signup-only" hidden>
+                  <span class="field__label">Full name</span>
+                  <input class="field__input" type="text" name="name" placeholder="Enter your name" autocomplete="name" />
+                </label>
+                <label class="field">
+                  <span class="field__label">Email</span>
+                  <input class="field__input" type="email" name="email" placeholder="Enter your email" autocomplete="email" />
+                </label>
+                <label class="field">
+                  <span class="field__label">Password</span>
+                  <input class="field__input" type="password" name="password" placeholder="Enter your password" autocomplete="current-password" />
+                </label>
+                <button class="banking-card__forgot" type="button">Forgot password?</button>
+                <button class="banking-card__submit" type="submit">Log in</button>
+                <button class="banking-card__learn-more" type="button" data-action="open-modal" data-modal-target="learn-more">${FIGMA_COPY.bankingLearnMore}</button>
+              </form>
             </div>
           </aside>
         </div>
@@ -227,7 +226,6 @@ function updateCryptoOrbit(container: HTMLElement, tickers: CryptoTicker[]): voi
   const hasItems = container.querySelector('.crypto-orbit__item') !== null
 
   if (!hasItems) {
-    log('updateCryptoOrbit: initial render', tickers.length)
     container.innerHTML = renderCryptoOrbit(tickers)
     return
   }
@@ -247,23 +245,7 @@ function updateCryptoOrbit(container: HTMLElement, tickers: CryptoTicker[]): voi
   })
 }
 
-function ensurePageInteractive(): void {
-  document.body.classList.remove('modal-open')
-  document.querySelectorAll<HTMLElement>('.modal.is-open').forEach((modal) => {
-    modal.classList.remove('is-open')
-    modal.setAttribute('aria-hidden', 'true')
-  })
-  document.querySelectorAll<HTMLElement>('[data-action="open-modal"].is-open').forEach((button) => {
-    button.classList.remove('is-open')
-  })
-  log('ensurePageInteractive', {
-    bodyClass: document.body.className || '(empty)',
-    openModals: document.querySelectorAll('#modals-root .modal.is-open').length,
-  })
-}
-
 function closeAllModals(): void {
-  log('closeAllModals')
   document.querySelectorAll<HTMLElement>('#modals-root .modal').forEach((modal) => {
     modal.classList.remove('is-open')
     modal.setAttribute('aria-hidden', 'true')
@@ -277,8 +259,6 @@ function getModalElement(id: ModalId): HTMLElement | null {
 }
 
 function setModal(id: ModalId, open: boolean): void {
-  log('setModal', { id, open })
-
   if (!open) {
     closeAllModals()
     return
@@ -287,15 +267,11 @@ function setModal(id: ModalId, open: boolean): void {
   closeAllModals()
 
   const modal = getModalElement(id)
-  if (!modal) {
-    warn('setModal: modal not found in #modals-root', id)
-    return
-  }
+  if (!modal) return
 
   modal.classList.add('is-open')
   modal.setAttribute('aria-hidden', 'false')
   document.body.classList.add('modal-open')
-  log('setModal: opened', id, modal.className)
 
   const video = modal.querySelector<HTMLVideoElement>('.modal__video')
   if (video) {
@@ -309,7 +285,6 @@ function getPageRoot(root: HTMLElement): HTMLElement {
 }
 
 function setMobileMenuOpen(root: HTMLElement, open: boolean): void {
-  log('setMobileMenuOpen', open)
   const page = getPageRoot(root)
   const menu = root.querySelector<HTMLElement>('[data-mobile-menu]')
   const backdrop = root.querySelector<HTMLElement>('.mobile-menu__backdrop')
@@ -324,12 +299,8 @@ function setMobileMenuOpen(root: HTMLElement, open: boolean): void {
 }
 
 function setAuthTab(root: HTMLElement, tab: 'login' | 'signup'): void {
-  log('setAuthTab', tab)
   const card = root.querySelector('.banking-card')
-  if (!card) {
-    warn('setAuthTab: banking-card not found')
-    return
-  }
+  if (!card) return
 
   const isSignup = tab === 'signup'
   card.classList.toggle('banking-card--signup', isSignup)
@@ -349,7 +320,6 @@ function setAuthTab(root: HTMLElement, tab: 'login' | 'signup'): void {
 
 function handleAction(root: HTMLElement, actionEl: HTMLElement): void {
   const action = actionEl.dataset.action
-  log('handleAction', { action, modal: actionEl.dataset.modalTarget })
 
   if (action === 'google-login') {
     startGoogleLogin()
@@ -387,12 +357,8 @@ function scrollToSection(root: HTMLElement, sectionId: string): void {
   }
 
   const section = document.getElementById(sectionId)
-  if (!section) {
-    warn('scrollToSection: not found', sectionId)
-    return
-  }
+  if (!section) return
 
-  log('scrollToSection', sectionId)
   setMobileMenuOpen(root, false)
   section.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
@@ -410,24 +376,15 @@ function bindNavigation(root: HTMLElement): void {
 }
 
 function bindDirectActions(root: HTMLElement): void {
-  const actionElements = root.querySelectorAll<HTMLElement>('[data-action]')
-  log('bindDirectActions: count', actionElements.length)
-
-  actionElements.forEach((element, index) => {
+  root.querySelectorAll<HTMLElement>('[data-action]').forEach((element) => {
     element.addEventListener('click', (event) => {
-      log('direct click handler', {
-        index,
-        action: element.dataset.action,
-        modal: element.dataset.modalTarget,
-      })
       event.preventDefault()
       handleAction(root, element)
     })
   })
 
-  root.querySelectorAll<HTMLButtonElement>('.banking-card__tab').forEach((tab, index) => {
+  root.querySelectorAll<HTMLButtonElement>('.banking-card__tab').forEach((tab) => {
     tab.addEventListener('click', (event) => {
-      log('direct tab click', { index, tab: tab.dataset.tab })
       event.preventDefault()
       setAuthTab(root, tab.dataset.tab === 'signup' ? 'signup' : 'login')
     })
@@ -435,19 +392,14 @@ function bindDirectActions(root: HTMLElement): void {
 }
 
 function bindEvents(root: HTMLElement): void {
-  if (eventsBound) {
-    warn('bindEvents: already bound, skipping')
-    return
-  }
+  if (eventsBound) return
   eventsBound = true
-  log('bindEvents: attaching listeners')
 
   bindDirectActions(root)
   bindNavigation(root)
 
   document.querySelectorAll<HTMLElement>('#modals-root [data-action]').forEach((element) => {
     element.addEventListener('click', (event) => {
-      log('modal direct click', element.dataset.action)
       event.preventDefault()
       handleAction(root, element)
     })
@@ -455,13 +407,11 @@ function bindEvents(root: HTMLElement): void {
 
   root.querySelector('.banking-card__form')?.addEventListener('submit', (event) => {
     event.preventDefault()
-    log('banking form submit -> google oauth')
     startGoogleLogin()
   })
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
-      log('escape pressed')
       closeAllModals()
       setMobileMenuOpen(root, false)
     }
@@ -469,7 +419,6 @@ function bindEvents(root: HTMLElement): void {
 }
 
 function mountModals(): void {
-  log('mountModals: start')
   const host = document.getElementById('modals-root') ?? document.createElement('div')
   host.id = 'modals-root'
   host.innerHTML = renderModals()
@@ -477,43 +426,22 @@ function mountModals(): void {
     document.body.appendChild(host)
   }
   closeAllModals()
-  log('mountModals: done', {
-    modals: document.querySelectorAll('.modal').length,
-    openModals: document.querySelectorAll('.modal.is-open').length,
-  })
 }
 
 function mount(): void {
-  log('mount: start')
-  ensurePageInteractive()
-  bindGlobalPointerDiagnostics()
-
   const root = document.querySelector<HTMLDivElement>('#app')
-  if (!root) {
-    error('mount: #app not found')
-    return
-  }
+  if (!root) return
 
   mountModals()
 
   const user = resolveAuthUser()
   root.innerHTML = renderPage(user)
-  log('mount: page rendered')
 
   setMobileMenuOpen(root, false)
   bindEvents(root)
-  document.body.dataset.appReady = 'true'
-  ensurePageInteractive()
-
-  const buttons = root.querySelectorAll('button, a, input')
-  log('mount: interactive elements', buttons.length)
-  logOverlayAudit()
 
   const cryptoContainer = root.querySelector<HTMLElement>('.crypto-orbit__items')
-  if (!cryptoContainer) {
-    warn('mount: crypto container not found')
-    return
-  }
+  if (!cryptoContainer) return
 
   const stream = new CryptoPriceStream((tickers) => {
     updateCryptoOrbit(cryptoContainer, tickers)
@@ -521,19 +449,6 @@ function mount(): void {
   stream.connect()
 
   window.addEventListener('beforeunload', () => stream.disconnect())
-  log('mount: complete')
 }
 
-window.addEventListener('error', (event) => {
-  error('window error', event.message, event.filename, event.lineno)
-})
-
-window.addEventListener('unhandledrejection', (event) => {
-  error('unhandled rejection', event.reason)
-})
-
-try {
-  mount()
-} catch (err) {
-  error('mount failed', err)
-}
+mount()

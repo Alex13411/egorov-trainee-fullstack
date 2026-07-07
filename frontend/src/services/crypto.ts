@@ -1,5 +1,3 @@
-import { log, warn } from '../utils/debug'
-
 export type CryptoTicker = {
   symbol: string
   label: string
@@ -30,12 +28,10 @@ export class CryptoPriceStream {
   private socket: WebSocket | null = null
   private reconnectTimer: number | null = null
   private flushTimer: number | null = null
-  private hasFlushed = false
   private readonly prices = new Map<string, CryptoTicker>()
   private readonly onUpdate: (tickers: CryptoTicker[]) => void
 
   constructor(onUpdate: (tickers: CryptoTicker[]) => void) {
-    log('CryptoPriceStream: created')
     this.onUpdate = onUpdate
     for (const { stream, label } of SYMBOLS) {
       this.prices.set(stream, {
@@ -48,13 +44,8 @@ export class CryptoPriceStream {
   }
 
   connect(): void {
-    log('CryptoPriceStream: connect', WS_URL)
     this.socket?.close()
     this.socket = new WebSocket(WS_URL)
-
-    this.socket.addEventListener('open', () => {
-      log('CryptoPriceStream: socket open')
-    })
 
     this.socket.addEventListener('message', (event) => {
       const payload = JSON.parse(event.data as string) as { data: BinanceStreamTicker }
@@ -74,18 +65,15 @@ export class CryptoPriceStream {
     })
 
     this.socket.addEventListener('close', () => {
-      warn('CryptoPriceStream: socket closed, reconnecting')
       this.scheduleReconnect()
     })
 
-    this.socket.addEventListener('error', (event) => {
-      warn('CryptoPriceStream: socket error', event)
+    this.socket.addEventListener('error', () => {
       this.socket?.close()
     })
   }
 
   disconnect(): void {
-    log('CryptoPriceStream: disconnect')
     if (this.reconnectTimer) {
       window.clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
@@ -103,10 +91,6 @@ export class CryptoPriceStream {
 
     this.flushTimer = window.setTimeout(() => {
       this.flushTimer = null
-      if (!this.hasFlushed) {
-        log('CryptoPriceStream: first prices received', this.prices.size)
-        this.hasFlushed = true
-      }
       this.onUpdate(Array.from(this.prices.values()))
     }, UPDATE_INTERVAL_MS)
   }

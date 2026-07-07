@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="KAIROS — next-generation online banking with live crypto markets and secure Google sign-in."
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -13,13 +17,7 @@
     <title>KAIROS — Online Banking</title>
   </head>
   <body>
-    <div id="app">
-      <p class="app-loading">Loading application…</p>
-    </div>
-    <script>
-      console.log('[KAIROS] inline boot', { time: Date.now(), href: location.href })
-      window.__KAIROS_INLINE_BOOT = true
-    </script>
+    <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

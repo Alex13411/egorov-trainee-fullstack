@@ -121,7 +121,9 @@ uvicorn app.main:app --reload --port 8000
 | `FRONTEND_URL` | `https://egorov-trainee-fullstack.vercel.app` |
 | `CORS_ORIGINS` | `https://egorov-trainee-fullstack.vercel.app` |
 
-5. Wait for deploy → check `https://YOUR-BACKEND.onrender.com/api/health`
+5. Wait for deploy → check `https://kairos-api-pk0k.onrender.com/api/health`
+
+> **Note:** Render free tier sleeps after inactivity. The first OAuth request may take up to 60 seconds while the backend wakes up.
 
 ### 2. Frontend — Vercel
 
@@ -149,3 +151,14 @@ In [Google Cloud Console](https://console.cloud.google.com/apis/credentials) add
 3. Refresh page → user stays signed in (sessionStorage)
 
 Update `FRONTEND_URL`, `GOOGLE_REDIRECT_URI`, `CORS_ORIGINS`, and `VITE_AUTH_API_BASE` whenever URLs change.
+
+## Submission checklist
+
+- [x] Public GitHub repository
+- [x] Live frontend URL (Vercel)
+- [x] Live backend URL (Render)
+- [x] Google OAuth on production
+- [x] Hero background video with autoplay
+- [x] Real-time crypto prices via WebSocket
+- [x] Responsive layout (desktop / tablet / mobile)
+- [x] README with setup and deploy instructions

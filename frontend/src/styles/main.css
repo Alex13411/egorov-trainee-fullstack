@@ -191,6 +191,14 @@ input {
   object-fit: cover;
 }
 
+.auth__name {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+}
+
 .burger {
   display: none;
   width: 44px;
@@ -439,8 +447,18 @@ input {
 }
 
 .banking-card__forgot {
+  justify-self: start;
+  border: 0;
+  padding: 0;
+  background: transparent;
   color: var(--purple);
   font-size: 0.8125rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.banking-card__forgot:hover {
+  text-decoration: underline;
 }
 
 .banking-card__submit {
@@ -923,6 +941,11 @@ input {
     position: static;
     width: auto;
     transform: none;
+    text-align: left;
+  }
+
+  .crypto-orbit__price {
+    font-size: 1.125rem;
   }
 }
 
@@ -967,16 +990,56 @@ input {
     justify-content: center;
   }
 
+  .hero__subtitle {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
   .banking-card {
-    padding: 24px 20px 28px;
+    max-width: none;
     border-radius: 18px;
+  }
+
+  .banking-card__body {
+    padding: 20px 20px 24px;
+  }
+
+  .banking-card__header {
+    padding: 16px 20px;
   }
 
   .crypto-orbit__items {
     grid-template-columns: 1fr;
   }
 
+  .modal {
+    padding: 16px;
+  }
+
+  .modal__dialog {
+    padding: 28px 24px;
+  }
+
   .footer {
     padding-bottom: 40px;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
