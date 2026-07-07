@@ -1,4 +1,5 @@
 import { listAvailableToAdd } from '../services/crypto-catalog'
+import { renderCryptoIconMarkup } from '../services/crypto-icons'
 import { canAddMoreCoins, type CryptoWatchlist } from '../services/crypto-watchlist'
 import { formatPrice, type CryptoTicker } from '../services/crypto'
 
@@ -17,9 +18,8 @@ function renderRemoveButton(id: string, name: string): string {
 function renderCryptoItem(id: string, side: 'left' | 'right', ticker?: CryptoTicker): string {
   const price = ticker ? formatPrice(ticker.price) : '—'
   const name = ticker?.name ?? id
-  const icon = ticker?.icon ?? '?'
-  const color = ticker?.color ?? '#ffffff'
   const removeButton = renderRemoveButton(id, name)
+  const iconMarkup = renderCryptoIconMarkup(id)
 
   if (side === 'left') {
     return `
@@ -27,14 +27,14 @@ function renderCryptoItem(id: string, side: 'left' | 'right', ticker?: CryptoTic
         ${removeButton}
         <span class="crypto-item__price">${price}</span>
         <span class="crypto-item__name">${name}</span>
-        <span class="crypto-item__icon" style="--icon-color: ${color}">${icon}</span>
+        ${iconMarkup}
       </article>
     `
   }
 
   return `
     <article class="crypto-item crypto-item--right" data-crypto-id="${id}">
-      <span class="crypto-item__icon" style="--icon-color: ${color}">${icon}</span>
+      ${iconMarkup}
       <span class="crypto-item__name">${name}</span>
       <span class="crypto-item__price">${price}</span>
       ${removeButton}
@@ -69,9 +69,10 @@ export function updateCryptoColumns(
   watchlist: CryptoWatchlist,
   tickers: Map<string, CryptoTicker>,
 ): void {
-  const hasItems = leftColumn.querySelector('.crypto-item') !== null
+  const expectedCount = watchlist.left.length + watchlist.right.length
+  const currentCount = document.querySelectorAll('.crypto-item').length
 
-  if (!hasItems) {
+  if (currentCount !== expectedCount) {
     mountCryptoColumns(leftColumn, rightColumn, watchlist, tickers)
     return
   }
@@ -90,34 +91,34 @@ export function updateCryptoColumns(
 
 export function renderAddCryptoOptions(watchlist: CryptoWatchlist): string {
   if (!canAddMoreCoins(watchlist)) {
-    return '<p class="add-crypto__empty">Your watchlist is full (up to 12 coins).</p>'
+    return '<p class="crypto-orbit__dropdown-empty">Your watchlist is full (up to 12 coins).</p>'
   }
 
   const options = listAvailableToAdd(watchlist)
   if (!options.length) {
-    return '<p class="add-crypto__empty">All supported coins are already on your dashboard.</p>'
+    return '<p class="crypto-orbit__dropdown-empty">All supported coins are already on your dashboard.</p>'
   }
 
   return options
     .map(
       (asset) => `
         <button
-          class="add-crypto__option"
+          class="crypto-orbit__dropdown-option"
           type="button"
+          role="option"
           data-action="add-crypto"
           data-crypto-id="${asset.id}"
         >
-          <span class="add-crypto__icon" style="--icon-color: ${asset.color}">${asset.icon}</span>
-          <span class="add-crypto__name">${asset.name}</span>
-          <span class="add-crypto__add-label">Add</span>
+          ${renderCryptoIconMarkup(asset.id, 'crypto-orbit__dropdown-icon')}
+          <span class="crypto-orbit__dropdown-name">${asset.name}</span>
         </button>
       `,
     )
     .join('')
 }
 
-export function updateAddCryptoModal(watchlist: CryptoWatchlist): void {
-  const list = document.querySelector<HTMLElement>('.add-crypto__list')
+export function updateAddCryptoDropdown(watchlist: CryptoWatchlist): void {
+  const list = document.querySelector<HTMLElement>('.crypto-orbit__dropdown-list')
   if (!list) return
   list.innerHTML = renderAddCryptoOptions(watchlist)
 }

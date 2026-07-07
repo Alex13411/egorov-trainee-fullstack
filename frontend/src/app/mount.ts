@@ -3,7 +3,7 @@ import { CryptoPriceStream } from '../services/crypto'
 import { getWatchlist } from '../services/crypto-watchlist'
 import {
   mountCryptoColumns,
-  updateAddCryptoModal,
+  updateAddCryptoDropdown,
   updateCryptoColumns,
 } from '../ui/crypto-orbit'
 import { renderPage } from '../ui/page'
@@ -41,7 +41,7 @@ function startCryptoStream(root: HTMLElement): void {
   if (!leftColumn || !rightColumn) return
 
   const watchlist = getWatchlist()
-  updateAddCryptoModal(watchlist)
+  updateAddCryptoDropdown(watchlist)
 
   const existingStream = (window as typeof window & { __kairosCryptoStream?: CryptoPriceStream }).__kairosCryptoStream
   existingStream?.disconnect()

@@ -14,16 +14,6 @@ export function renderModals(): string {
       </div>
     </div>
 
-    <div class="modal" data-modal="add-crypto" aria-hidden="true">
-      <div class="modal__backdrop" data-action="close-modal"></div>
-      <div class="modal__dialog modal__dialog--add-crypto" role="dialog" aria-modal="true" aria-labelledby="add-crypto-title">
-        <button class="modal__close modal__close--light" type="button" data-action="close-modal" aria-label="Close">×</button>
-        <h2 class="modal__title modal__title--add-crypto" id="add-crypto-title">${FIGMA_COPY.modalAddCryptoTitle}</h2>
-        <p class="modal__text modal__text--add-crypto">${FIGMA_COPY.modalAddCryptoHint}</p>
-        <div class="add-crypto__list"></div>
-      </div>
-    </div>
-
     <div class="modal modal--video" data-modal="video" aria-hidden="true">
       <div class="modal__backdrop" data-action="close-modal"></div>
       <div class="modal__dialog modal__dialog--video" role="dialog" aria-modal="true" aria-labelledby="video-title">

@@ -3,7 +3,13 @@ import { addToWatchlist, removeFromWatchlist } from '../services/crypto-watchlis
 import type { ModalId } from '../ui/constants'
 import { CRYPTO_UPDATED_EVENT } from './crypto-events'
 import { closeAllModals, setModal } from './modals'
-import { isMobileMenuOpen, setAuthTab, setMobileMenuOpen } from './ui-state'
+import {
+  isCryptoDropdownOpen,
+  isMobileMenuOpen,
+  setBankingTab,
+  setCryptoDropdownOpen,
+  setMobileMenuOpen,
+} from './ui-state'
 
 function scrollToSection(root: HTMLElement, sectionId: string): void {
   if (sectionId === 'about') {
@@ -16,6 +22,7 @@ function scrollToSection(root: HTMLElement, sectionId: string): void {
   if (!section) return
 
   setMobileMenuOpen(root, false)
+  setCryptoDropdownOpen(root, false)
   section.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
@@ -39,13 +46,22 @@ function handleAction(root: HTMLElement, actionEl: HTMLElement): void {
 
   if (action === 'close-menu' || action === 'close-modal') {
     setMobileMenuOpen(root, false)
+    setCryptoDropdownOpen(root, false)
     closeAllModals()
     return
   }
 
   if (action === 'open-modal') {
     const modalId = actionEl.getAttribute('data-modal-target') as ModalId | null
-    if (modalId) setModal(modalId, true)
+    if (modalId) {
+      setCryptoDropdownOpen(root, false)
+      setModal(modalId, true)
+    }
+    return
+  }
+
+  if (action === 'toggle-crypto-dropdown') {
+    setCryptoDropdownOpen(root, !isCryptoDropdownOpen(root))
     return
   }
 
@@ -53,7 +69,7 @@ function handleAction(root: HTMLElement, actionEl: HTMLElement): void {
     const cryptoId = actionEl.dataset.cryptoId
     if (!cryptoId) return
     if (addToWatchlist(cryptoId)) {
-      closeAllModals()
+      setCryptoDropdownOpen(root, false)
       window.dispatchEvent(new CustomEvent(CRYPTO_UPDATED_EVENT))
     }
     return
@@ -81,7 +97,7 @@ export function bindEvents(root: HTMLElement): void {
     const tab = target.closest<HTMLButtonElement>('.banking-card__tab')
     if (tab && root.contains(tab)) {
       event.preventDefault()
-      setAuthTab(root, tab.dataset.tab === 'signup' ? 'signup' : 'login')
+      setBankingTab(root, tab.dataset.tab === 'business' ? 'business' : 'personal')
       return
     }
 
@@ -94,22 +110,31 @@ export function bindEvents(root: HTMLElement): void {
     }
 
     const actionEl = target.closest<HTMLElement>('[data-action]')
-    if (!actionEl) return
-    if (!root.contains(actionEl) && !actionEl.closest('#modals-root')) return
+    if (actionEl) {
+      if (root.contains(actionEl) || actionEl.closest('#modals-root')) {
+        event.preventDefault()
+        handleAction(root, actionEl)
+        return
+      }
+    }
 
-    event.preventDefault()
-    handleAction(root, actionEl)
+    if (isCryptoDropdownOpen(root) && !target.closest('[data-crypto-dropdown]')) {
+      setCryptoDropdownOpen(root, false)
+    }
   })
 
-  root.querySelector('.banking-card__form')?.addEventListener('submit', (event) => {
-    event.preventDefault()
-    startGoogleLogin()
+  root.querySelectorAll<HTMLFormElement>('.banking-card__panel').forEach((form) => {
+    form.addEventListener('submit', (event) => {
+      event.preventDefault()
+      startGoogleLogin()
+    })
   })
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
       closeAllModals()
       setMobileMenuOpen(root, false)
+      setCryptoDropdownOpen(root, false)
     }
   })
 }

@@ -127,8 +127,16 @@ input {
 .nav {
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 0;
   justify-self: center;
+}
+
+.nav__sep {
+  margin: 0 18px;
+  color: rgba(255, 255, 255, 0.28);
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  user-select: none;
 }
 
 .nav__link {
@@ -137,7 +145,7 @@ input {
   font-size: 0.8125rem;
   font-weight: 500;
   letter-spacing: 0.2em;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .nav__link:hover {
@@ -361,7 +369,9 @@ input {
 
 .hero__cta:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  box-shadow:
+    0 0 28px rgba(47, 213, 255, 0.42),
+    0 12px 32px rgba(0, 0, 0, 0.28);
 }
 
 .hero__actions {
@@ -379,22 +389,27 @@ input {
 .hero__orbit {
   position: relative;
   z-index: 4;
-  margin-top: -48px;
+  margin-top: 0;
+  padding: 72px 0 88px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(47, 213, 255, 0.08), transparent 42%),
+    linear-gradient(180deg, #010611 0%, #020814 45%, #010611 100%);
   pointer-events: none;
 }
 
 /* Banking card — Figma */
 .hero__content,
 .banking-card,
-.hero__cta,
 .banking-card__tab,
+.banking-card__panel,
+.hero__cta,
 .auth,
 .burger,
 .hero__orbit .crypto-orbit__hub,
 .hero__orbit .crypto-orbit__add,
+.hero__orbit .crypto-orbit__dropdown-option,
 .hero__orbit .crypto-item,
-.hero__orbit .crypto-item__remove,
-.hero__orbit .add-crypto__option {
+.hero__orbit .crypto-item__remove {
   pointer-events: auto;
 }
 
@@ -409,12 +424,13 @@ input {
 }
 
 .banking-card__header {
-  padding: 18px 24px;
-  background: linear-gradient(90deg, var(--purple-dark), var(--purple));
+  padding: 18px 0 0;
+  background: linear-gradient(180deg, var(--figma-purple), #3a0080);
 }
 
 .banking-card__title {
   margin: 0;
+  padding: 0 24px;
   font-family: var(--font-display);
   font-size: 0.9375rem;
   font-weight: 600;
@@ -424,7 +440,7 @@ input {
 }
 
 .banking-card__body {
-  padding: 24px 24px 28px;
+  padding: 28px 24px 28px;
   background: #ffffff;
   color: #0a1128;
 }
@@ -432,117 +448,154 @@ input {
 .banking-card__tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-bottom: 24px;
-  padding: 4px;
-  border-radius: 999px;
-  background: rgba(10, 17, 40, 0.06);
+  gap: 0;
+  margin-top: 18px;
 }
 
 .banking-card__tab {
   border: 0;
-  border-radius: 999px;
+  border-radius: 14px 14px 0 0;
   background: transparent;
-  color: rgba(10, 17, 40, 0.55);
-  padding: 12px 16px;
+  color: rgba(255, 255, 255, 0.72);
+  padding: 14px 16px;
   font-family: var(--font-display);
   font-size: 0.875rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
 .banking-card__tab--active {
-  background: rgba(107, 78, 255, 0.12);
+  background: #ffffff;
   color: #0a1128;
 }
 
-.banking-card__form {
+.banking-card__panel {
   display: grid;
   gap: 18px;
+  margin: 0;
 }
 
-.field {
-  display: grid;
-  gap: 8px;
+.banking-card__login-gold {
+  border: 0;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #d4c4a0, #c4b58a);
+  color: #ffffff;
+  min-height: 52px;
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.field__label {
-  color: rgba(10, 17, 40, 0.62);
-  font-size: 0.8125rem;
-}
-
-.field__input {
-  border: 1px solid rgba(10, 17, 40, 0.12);
-  border-radius: 12px;
-  background: rgba(10, 17, 40, 0.03);
-  color: #0a1128;
-  min-height: 48px;
-  padding: 14px 16px;
-}
-
-.field__input::placeholder {
-  color: rgba(10, 17, 40, 0.38);
-}
-
-.field__input:focus {
-  outline: none;
-  border-color: rgba(107, 78, 255, 0.45);
+.banking-card__login-gold:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(196, 181, 138, 0.35);
 }
 
 .banking-card__forgot {
-  justify-self: start;
+  justify-self: center;
   border: 0;
   padding: 0;
   background: transparent;
-  color: var(--purple);
+  color: rgba(10, 17, 40, 0.72);
+  font-family: var(--font-display);
   font-size: 0.8125rem;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  text-align: left;
 }
 
 .banking-card__forgot:hover {
   text-decoration: underline;
 }
 
-.banking-card__submit {
-  border: 0;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--gold), var(--gold-strong));
-  color: #1a1400;
-  min-height: 48px;
-  font-family: var(--font-display);
-  font-size: 0.9375rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  padding: 14px;
-  cursor: pointer;
+.banking-card__or {
+  display: grid;
+  place-items: center;
+  position: relative;
+  margin: 4px 0;
 }
 
-.banking-card__learn-more {
+.banking-card__or::before {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 1px;
+  background: rgba(10, 17, 40, 0.12);
+}
+
+.banking-card__or span {
+  position: relative;
+  z-index: 1;
+  padding: 0 12px;
+  background: #ffffff;
+  color: rgba(10, 17, 40, 0.45);
+  font-size: 0.8125rem;
+}
+
+.banking-card__signup {
+  margin: 0;
+  text-align: center;
+  color: rgba(10, 17, 40, 0.62);
+  font-size: 0.8125rem;
+}
+
+.banking-card__signup button {
   border: 0;
+  padding: 0;
   background: transparent;
-  color: rgba(10, 17, 40, 0.48);
+  color: rgba(10, 17, 40, 0.82);
   font-family: var(--font-display);
   font-size: 0.8125rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-decoration: underline;
   cursor: pointer;
 }
 
-.banking-card__learn-more:hover {
-  color: var(--purple);
+.banking-card__business-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 4px 4px 4px 14px;
+  border: 1px solid rgba(10, 17, 40, 0.12);
+  border-radius: 4px;
+  background: rgba(10, 17, 40, 0.04);
 }
 
-.banking-card--signup .banking-card__forgot {
-  display: none;
+.banking-card__business-input input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: #0a1128;
+  font-size: 0.875rem;
 }
 
-.banking-card--signup .field--signup-only {
-  display: grid;
+.banking-card__business-input input:focus {
+  outline: none;
 }
 
-.field--signup-only {
-  display: none;
+.banking-card__business-input input::placeholder {
+  color: rgba(10, 17, 40, 0.38);
+}
+
+.banking-card__business-login {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #d4c4a0, #c4b58a);
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  cursor: pointer;
 }
 
 /* Mobile menu — Figma Tablet Menu */
@@ -629,12 +682,120 @@ input {
 }
 
 /* Crypto orbit — Figma projects frame */
+@keyframes orbit-spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes orbit-spin-reverse {
+  from {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+}
+
+@keyframes orbit-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: translate(-50%, -50%) scale(0.98);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(1.02);
+  }
+}
+
+@keyframes orb-travel {
+  from {
+    offset-distance: 0%;
+  }
+
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes dropdown-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .crypto-orbit {
   position: relative;
   width: min(1120px, 100%);
   min-height: 520px;
   margin: 0 auto;
   padding: 24px 0 48px;
+}
+
+.crypto-orbit__hud {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.crypto-orbit__hud::before,
+.crypto-orbit__hud::after {
+  content: "";
+  position: absolute;
+  background: rgba(47, 213, 255, 0.45);
+}
+
+.crypto-orbit__hud--tl {
+  top: 8%;
+  left: 4%;
+}
+
+.crypto-orbit__hud--tl::before {
+  top: 0;
+  left: 0;
+  width: 72px;
+  height: 1px;
+}
+
+.crypto-orbit__hud--tl::after {
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 72px;
+}
+
+.crypto-orbit__hud--br {
+  right: 4%;
+  bottom: 8%;
+}
+
+.crypto-orbit__hud--br::before {
+  right: 0;
+  bottom: 0;
+  width: 72px;
+  height: 1px;
+}
+
+.crypto-orbit__hud--br::after {
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  height: 72px;
 }
 
 .crypto-orbit__glow,
@@ -652,16 +813,40 @@ input {
 .crypto-orbit__glow {
   background: radial-gradient(circle, rgba(47, 213, 255, 0.24), transparent 70%);
   filter: blur(18px);
+  animation: orbit-pulse 4.5s ease-in-out infinite;
 }
 
 .crypto-orbit__ring--outer {
-  border: 1px solid rgba(47, 213, 255, 0.16);
+  border: 1px dashed rgba(47, 213, 255, 0.22);
   box-shadow: inset 0 0 80px rgba(47, 213, 255, 0.08);
+  animation: orbit-spin 52s linear infinite;
+}
+
+.crypto-orbit__ring--mid {
+  width: min(470px, 65vw);
+  border: 1px solid rgba(47, 213, 255, 0.1);
+  animation: orbit-spin-reverse 38s linear infinite;
 }
 
 .crypto-orbit__ring--inner {
   width: min(420px, 58vw);
-  border: 1px solid rgba(47, 213, 255, 0.12);
+  border: 1px dotted rgba(47, 213, 255, 0.18);
+  animation: orbit-spin 28s linear infinite;
+}
+
+.crypto-orbit__orb {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 50%;
+  background: rgba(47, 213, 255, 0.75);
+  box-shadow: 0 0 18px rgba(47, 213, 255, 0.85);
+  offset-path: circle(min(240px, 34vw) at 50% 50%);
+  animation: orb-travel 14s linear infinite;
+  pointer-events: none;
 }
 
 .crypto-orbit__layout {
@@ -705,10 +890,17 @@ input {
   color: var(--text);
 }
 
+.crypto-orbit__dropdown {
+  position: relative;
+  width: min(100%, 280px);
+}
+
 .crypto-orbit__add {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
+  width: 100%;
   border: 0;
   border-radius: 999px;
   background: #ffffff;
@@ -717,7 +909,17 @@ input {
   font-size: 0.9375rem;
   font-weight: 500;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.25s ease,
+    border-radius 0.25s ease;
+}
+
+.crypto-orbit__dropdown.is-open .crypto-orbit__add {
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, #d4c4a0, #c4b58a);
+  color: #ffffff;
 }
 
 .crypto-orbit__add:hover {
@@ -725,9 +927,67 @@ input {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
 }
 
-.crypto-orbit__add-arrow {
-  font-size: 1.25rem;
+.crypto-orbit__add-chevron {
+  font-size: 0.875rem;
   line-height: 1;
+  transition: transform 0.25s ease;
+}
+
+.crypto-orbit__dropdown.is-open .crypto-orbit__add-chevron {
+  transform: rotate(180deg);
+}
+
+.crypto-orbit__dropdown-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  overflow: hidden;
+  border-radius: 0 0 8px 8px;
+  background: #ffffff;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.crypto-orbit__dropdown.is-open .crypto-orbit__dropdown-panel {
+  animation: dropdown-reveal 0.28s ease;
+}
+
+.crypto-orbit__dropdown-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.crypto-orbit__dropdown-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 0;
+  border-top: 1px solid rgba(10, 17, 40, 0.08);
+  background: #ffffff;
+  color: #0a1128;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.crypto-orbit__dropdown-option:hover {
+  background: rgba(10, 17, 40, 0.05);
+}
+
+.crypto-orbit__dropdown-name {
+  font-size: 0.9375rem;
+}
+
+.crypto-orbit__dropdown-empty {
+  margin: 0;
+  padding: 14px 16px;
+  color: rgba(10, 17, 40, 0.62);
+  font-size: 0.875rem;
 }
 
 .crypto-item {
@@ -756,23 +1016,36 @@ input {
 }
 
 .crypto-item__name {
-  font-size: 0.9375rem;
+  font-family: var(--font-display);
+  font-size: 0.875rem;
   color: rgba(255, 255, 255, 0.82);
   white-space: nowrap;
+}
+
+.crypto-item__icon,
+.crypto-item__icon-img,
+.crypto-orbit__dropdown-icon {
+  display: block;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
 }
 
 .crypto-item__icon {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
   border-radius: 50%;
   background: var(--icon-color, #ffffff);
   color: #ffffff;
   font-size: 0.8125rem;
   font-weight: 700;
-  flex-shrink: 0;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.crypto-item__icon-img,
+.crypto-orbit__dropdown-icon {
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .crypto-item__remove {
@@ -801,89 +1074,6 @@ input {
 .crypto-item__remove:hover {
   color: #ffffff;
   background: rgba(255, 90, 90, 0.4);
-}
-
-.modal__dialog--add-crypto {
-  width: min(480px, 100%);
-  padding: 32px 28px 24px;
-  border: 0;
-  border-radius: 16px;
-  background: #ffffff;
-  color: var(--figma-purple);
-}
-
-.modal__title--add-crypto {
-  margin-bottom: 8px;
-  font-size: 1.375rem;
-  color: var(--figma-purple);
-}
-
-.modal__text--add-crypto {
-  margin-bottom: 20px;
-  color: rgba(42, 0, 87, 0.72);
-  font-size: 0.9375rem;
-}
-
-.add-crypto__list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: min(52vh, 360px);
-  overflow: auto;
-}
-
-.add-crypto__option {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid rgba(42, 0, 87, 0.12);
-  border-radius: 12px;
-  background: #ffffff;
-  color: var(--figma-purple);
-  cursor: pointer;
-  text-align: left;
-  transition: border-color 0.2s ease, background 0.2s ease;
-}
-
-.add-crypto__option:hover {
-  border-color: rgba(42, 0, 87, 0.28);
-  background: rgba(42, 0, 87, 0.04);
-}
-
-.add-crypto__icon {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--icon-color, #2a0057);
-  color: #ffffff;
-  font-size: 0.875rem;
-  font-weight: 700;
-}
-
-.add-crypto__name {
-  font-size: 0.9375rem;
-  font-weight: 500;
-}
-
-.add-crypto__add-label {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--purple-dark);
-}
-
-.add-crypto__empty {
-  margin: 0;
-  padding: 12px 0;
-  color: rgba(42, 0, 87, 0.72);
-  font-size: 0.9375rem;
-  line-height: 1.5;
 }
 
 /* Modal */
@@ -1029,6 +1219,14 @@ input {
   object-fit: cover;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .crypto-orbit__glow,
+  .crypto-orbit__ring,
+  .crypto-orbit__orb {
+    animation: none;
+  }
+}
+
 /* Footer — contact anchor */
 .footer {
   position: relative;
@@ -1131,17 +1329,13 @@ input {
   }
 
   .hero__orbit {
-    margin-top: 8px;
-  }
-
-  .crypto-orbit {
-    width: 100%;
-    min-height: auto;
-    padding-bottom: 32px;
+    padding: 48px 0 64px;
   }
 
   .crypto-orbit__glow,
-  .crypto-orbit__ring {
+  .crypto-orbit__ring,
+  .crypto-orbit__orb,
+  .crypto-orbit__hud {
     display: none;
   }
 

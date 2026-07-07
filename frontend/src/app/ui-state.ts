@@ -20,22 +20,32 @@ export function isMobileMenuOpen(root: HTMLElement): boolean {
   return getPageRoot(root).classList.contains('page--menu-open')
 }
 
-export function setAuthTab(root: HTMLElement, tab: 'login' | 'signup'): void {
+export function setBankingTab(root: HTMLElement, tab: 'personal' | 'business'): void {
   const card = root.querySelector('.banking-card')
   if (!card) return
 
-  const isSignup = tab === 'signup'
-  card.classList.toggle('banking-card--signup', isSignup)
+  card.classList.toggle('banking-card--business', tab === 'business')
 
-  const signupField = root.querySelector<HTMLElement>('.field--signup-only')
-  if (signupField) signupField.hidden = !isSignup
-
-  const submit = root.querySelector<HTMLButtonElement>('.banking-card__submit')
-  if (submit) {
-    submit.textContent = isSignup ? 'Sign up' : 'Log in'
-  }
+  root.querySelectorAll<HTMLElement>('[data-banking-panel]').forEach((panel) => {
+    panel.hidden = panel.dataset.bankingPanel !== tab
+  })
 
   root.querySelectorAll<HTMLButtonElement>('.banking-card__tab').forEach((button) => {
     button.classList.toggle('banking-card__tab--active', button.dataset.tab === tab)
   })
+}
+
+export function setCryptoDropdownOpen(root: HTMLElement, open: boolean): void {
+  const dropdown = root.querySelector<HTMLElement>('[data-crypto-dropdown]')
+  const trigger = root.querySelector<HTMLButtonElement>('[data-action="toggle-crypto-dropdown"]')
+  const panel = root.querySelector<HTMLElement>('.crypto-orbit__dropdown-panel')
+  if (!dropdown || !trigger || !panel) return
+
+  dropdown.classList.toggle('is-open', open)
+  trigger.setAttribute('aria-expanded', open ? 'true' : 'false')
+  panel.hidden = !open
+}
+
+export function isCryptoDropdownOpen(root: HTMLElement): boolean {
+  return root.querySelector('[data-crypto-dropdown]')?.classList.contains('is-open') ?? false
 }

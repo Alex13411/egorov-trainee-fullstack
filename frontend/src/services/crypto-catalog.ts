@@ -3,6 +3,7 @@ export type CryptoAsset = {
   stream: string | null
   name: string
   icon: string
+  iconSlug?: string
   color: string
   staticPrice?: number
 }
@@ -13,6 +14,7 @@ export const CRYPTO_CATALOG: Record<string, CryptoAsset> = {
     stream: 'btcusdt',
     name: 'Bitcoin',
     icon: '₿',
+    iconSlug: 'btc',
     color: '#f7931a',
   },
   ethereum: {
@@ -20,6 +22,7 @@ export const CRYPTO_CATALOG: Record<string, CryptoAsset> = {
     stream: 'ethusdt',
     name: 'Ethereum',
     icon: 'Ξ',
+    iconSlug: 'eth',
     color: '#627eea',
   },
   solana: {
@@ -27,6 +30,7 @@ export const CRYPTO_CATALOG: Record<string, CryptoAsset> = {
     stream: 'solusdt',
     name: 'Solana',
     icon: 'S',
+    iconSlug: 'sol',
     color: '#14f195',
   },
   xrp: {
@@ -34,6 +38,7 @@ export const CRYPTO_CATALOG: Record<string, CryptoAsset> = {
     stream: 'xrpusdt',
     name: 'XRP',
     icon: 'X',
+    iconSlug: 'xrp',
     color: '#23292f',
   },
   usdc: {
@@ -41,6 +46,7 @@ export const CRYPTO_CATALOG: Record<string, CryptoAsset> = {
     stream: 'usdcusdt',
     name: 'USD Coin',
     icon: '$',
+    iconSlug: 'usdc',
     color: '#2775ca',
   },
   'binance-coin': {
@@ -48,6 +54,7 @@ export const CRYPTO_CATALOG: Record<string, CryptoAsset> = {
     stream: 'bnbusdt',
     name: 'Binance Coin',
     icon: 'B',
+    iconSlug: 'bnb',
     color: '#f3ba2f',
   },
   midnight: {
@@ -62,6 +69,7 @@ export const CRYPTO_CATALOG: Record<string, CryptoAsset> = {
     stream: 'dogeusdt',
     name: 'Dogecoin',
     icon: 'Ð',
+    iconSlug: 'doge',
     color: '#c2a633',
   },
   sui: {
@@ -76,6 +84,7 @@ export const CRYPTO_CATALOG: Record<string, CryptoAsset> = {
     stream: null,
     name: 'Tether',
     icon: '₮',
+    iconSlug: 'usdt',
     color: '#26a17b',
     staticPrice: 1,
   },
@@ -84,6 +93,7 @@ export const CRYPTO_CATALOG: Record<string, CryptoAsset> = {
     stream: 'adausdt',
     name: 'Cardano',
     icon: 'A',
+    iconSlug: 'ada',
     color: '#0033ad',
   },
   avalanche: {
@@ -91,6 +101,7 @@ export const CRYPTO_CATALOG: Record<string, CryptoAsset> = {
     stream: 'avaxusdt',
     name: 'Avalanche',
     icon: 'A',
+    iconSlug: 'avax',
     color: '#e84142',
   },
   chainlink: {
@@ -98,6 +109,7 @@ export const CRYPTO_CATALOG: Record<string, CryptoAsset> = {
     stream: 'linkusdt',
     name: 'Chainlink',
     icon: 'L',
+    iconSlug: 'link',
     color: '#2a5ada',
   },
   polkadot: {
@@ -105,6 +117,7 @@ export const CRYPTO_CATALOG: Record<string, CryptoAsset> = {
     stream: 'dotusdt',
     name: 'Polkadot',
     icon: 'P',
+    iconSlug: 'dot',
     color: '#e6007a',
   },
   litecoin: {
@@ -112,6 +125,7 @@ export const CRYPTO_CATALOG: Record<string, CryptoAsset> = {
     stream: 'ltcusdt',
     name: 'Litecoin',
     icon: 'Ł',
+    iconSlug: 'ltc',
     color: '#345d9d',
   },
   tron: {
@@ -119,6 +133,7 @@ export const CRYPTO_CATALOG: Record<string, CryptoAsset> = {
     stream: 'trxusdt',
     name: 'TRON',
     icon: 'T',
+    iconSlug: 'trx',
     color: '#eb0029',
   },
 }

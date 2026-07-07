@@ -3,6 +3,14 @@ import { CTA_ARROW_ICON, CTA_PLAY_ICON, FIGMA_COPY } from '../content/figma'
 import { renderAuthButton, renderMobileAuth } from './auth-button'
 import { LOGO_MARK, NAV_ITEMS } from './constants'
 
+function renderNavLinks(activeSection = 'home'): string {
+  return NAV_ITEMS.map((item, index) => {
+    const separator = index > 0 ? '<span class="nav__sep" aria-hidden="true">|</span>' : ''
+    const activeClass = item.section === activeSection ? ' nav__link--active' : ''
+    return `${separator}<a class="nav__link${activeClass}" href="#${item.section}" data-section="${item.section}">${item.label}</a>`
+  }).join('')
+}
+
 export function renderPage(user: AuthUser | null): string {
   return `
     <div class="page">
@@ -14,7 +22,7 @@ export function renderPage(user: AuthUser | null): string {
           </a>
 
           <nav class="nav" aria-label="Main navigation">
-            ${NAV_ITEMS.map((item) => `<a class="nav__link${item.section === 'home' ? ' nav__link--active' : ''}" href="#${item.section}" data-section="${item.section}">${item.label}</a>`).join('')}
+            ${renderNavLinks('home')}
           </nav>
 
           <div class="header__actions">
@@ -61,59 +69,75 @@ export function renderPage(user: AuthUser | null): string {
             </div>
           </div>
 
-          <aside class="banking-card" aria-label="Online banking">
+          <aside class="banking-card banking-card--personal" aria-label="Online banking">
             <div class="banking-card__header">
               <h2 class="banking-card__title">${FIGMA_COPY.bankingTitle}</h2>
+              <div class="banking-card__tabs">
+                <button class="banking-card__tab banking-card__tab--active" type="button" data-tab="personal">${FIGMA_COPY.bankingTabPersonal}</button>
+                <button class="banking-card__tab" type="button" data-tab="business">${FIGMA_COPY.bankingTabBusiness}</button>
+              </div>
             </div>
             <div class="banking-card__body">
-              <div class="banking-card__tabs">
-                <button class="banking-card__tab banking-card__tab--active" type="button" data-tab="login">Log in</button>
-                <button class="banking-card__tab" type="button" data-tab="signup">Sign up</button>
-              </div>
-              <form class="banking-card__form">
-                <label class="field field--signup-only" hidden>
-                  <span class="field__label">Full name</span>
-                  <input class="field__input" type="text" name="name" placeholder="Enter your name" autocomplete="name" />
-                </label>
-                <label class="field">
-                  <span class="field__label">Email</span>
-                  <input class="field__input" type="email" name="email" placeholder="Enter your email" autocomplete="email" />
-                </label>
-                <label class="field">
-                  <span class="field__label">Password</span>
-                  <input class="field__input" type="password" name="password" placeholder="Enter your password" autocomplete="current-password" />
-                </label>
-                <button class="banking-card__forgot" type="button">Forgot password?</button>
-                <button class="banking-card__submit" type="submit">Log in</button>
-                <button class="banking-card__learn-more" type="button" data-action="open-modal" data-modal-target="learn-more">${FIGMA_COPY.bankingLearnMore}</button>
+              <form class="banking-card__panel banking-card__panel--personal" data-banking-panel="personal">
+                <button class="banking-card__login-gold" type="submit">${FIGMA_COPY.bankingLogin}</button>
+                <button class="banking-card__forgot" type="button">${FIGMA_COPY.bankingForgot}</button>
+                <div class="banking-card__or"><span>${FIGMA_COPY.bankingOr}</span></div>
+                <p class="banking-card__signup">
+                  ${FIGMA_COPY.bankingSignupPrefix}
+                  <button type="button" data-action="google-login">${FIGMA_COPY.bankingSignup}</button>
+                </p>
+              </form>
+              <form class="banking-card__panel banking-card__panel--business" data-banking-panel="business" hidden>
+                <div class="banking-card__business-input">
+                  <input type="email" name="email" placeholder="${FIGMA_COPY.bankingBusinessPlaceholder}" autocomplete="email" />
+                  <button class="banking-card__business-login" type="submit" aria-label="${FIGMA_COPY.bankingLogin}">${FIGMA_COPY.bankingLogin}</button>
+                </div>
+                <button class="banking-card__forgot" type="button">${FIGMA_COPY.bankingForgot}</button>
+                <div class="banking-card__or"><span>${FIGMA_COPY.bankingOr}</span></div>
+                <p class="banking-card__signup">
+                  ${FIGMA_COPY.bankingSignupPrefix}
+                  <button type="button" data-action="google-login">${FIGMA_COPY.bankingSignup}</button>
+                </p>
               </form>
             </div>
           </aside>
         </div>
 
-        <div class="container hero__orbit" id="projects">
-          <div class="crypto-orbit">
-            <div class="crypto-orbit__glow" aria-hidden="true"></div>
-            <div class="crypto-orbit__ring crypto-orbit__ring--outer" aria-hidden="true"></div>
-            <div class="crypto-orbit__ring crypto-orbit__ring--inner" aria-hidden="true"></div>
-            <div class="crypto-orbit__layout">
-              <div class="crypto-orbit__column crypto-orbit__column--left" aria-label="Cryptocurrency prices left"></div>
-              <div class="crypto-orbit__hub">
-                <h2 class="crypto-orbit__hub-title">${FIGMA_COPY.cryptoHubTitle}</h2>
-                <button
-                  class="crypto-orbit__add"
-                  type="button"
-                  data-action="open-modal"
-                  data-modal-target="add-crypto"
-                >
-                  ${FIGMA_COPY.cryptoAddLabel}
-                  <span class="crypto-orbit__add-arrow" aria-hidden="true">›</span>
-                </button>
+        <section class="hero__orbit" id="projects" aria-label="Cryptocurrency dashboard">
+          <div class="container">
+            <div class="crypto-orbit">
+              <div class="crypto-orbit__hud crypto-orbit__hud--tl" aria-hidden="true"></div>
+              <div class="crypto-orbit__hud crypto-orbit__hud--br" aria-hidden="true"></div>
+              <div class="crypto-orbit__glow" aria-hidden="true"></div>
+              <div class="crypto-orbit__ring crypto-orbit__ring--outer" aria-hidden="true"></div>
+              <div class="crypto-orbit__ring crypto-orbit__ring--mid" aria-hidden="true"></div>
+              <div class="crypto-orbit__ring crypto-orbit__ring--inner" aria-hidden="true"></div>
+              <div class="crypto-orbit__orb" aria-hidden="true"></div>
+              <div class="crypto-orbit__layout">
+                <div class="crypto-orbit__column crypto-orbit__column--left" aria-label="Cryptocurrency prices left"></div>
+                <div class="crypto-orbit__hub">
+                  <h2 class="crypto-orbit__hub-title">${FIGMA_COPY.cryptoHubTitle}</h2>
+                  <div class="crypto-orbit__dropdown" data-crypto-dropdown>
+                    <button
+                      class="crypto-orbit__add"
+                      type="button"
+                      data-action="toggle-crypto-dropdown"
+                      aria-expanded="false"
+                      aria-haspopup="listbox"
+                    >
+                      ${FIGMA_COPY.cryptoAddLabel}
+                      <span class="crypto-orbit__add-chevron" aria-hidden="true">▾</span>
+                    </button>
+                    <div class="crypto-orbit__dropdown-panel" hidden>
+                      <div class="crypto-orbit__dropdown-list" role="listbox"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="crypto-orbit__column crypto-orbit__column--right" aria-label="Cryptocurrency prices right"></div>
               </div>
-              <div class="crypto-orbit__column crypto-orbit__column--right" aria-label="Cryptocurrency prices right"></div>
             </div>
           </div>
-        </div>
+        </section>
       </main>
 
       <footer class="footer" id="contact" aria-label="Contact">
