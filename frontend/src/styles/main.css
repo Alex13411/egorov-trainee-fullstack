@@ -240,7 +240,7 @@ input {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding-bottom: 48px;
+  padding-bottom: 0;
 }
 
 .hero__media {
@@ -259,9 +259,9 @@ input {
 
 .hero__overlay {
   background:
-    radial-gradient(circle at 58% 38%, rgba(0, 184, 255, 0.2), transparent 32%),
-    linear-gradient(90deg, rgba(1, 6, 17, 0.88) 0%, rgba(1, 6, 17, 0.45) 42%, rgba(1, 6, 17, 0.72) 100%),
-    linear-gradient(180deg, rgba(1, 6, 17, 0.2) 0%, rgba(1, 6, 17, 0.82) 72%, rgba(1, 6, 17, 1) 100%);
+    radial-gradient(circle at 58% 38%, rgba(0, 184, 255, 0.26), transparent 34%),
+    linear-gradient(90deg, rgba(1, 6, 17, 0.72) 0%, rgba(1, 6, 17, 0.34) 42%, rgba(1, 6, 17, 0.58) 100%),
+    linear-gradient(180deg, rgba(1, 6, 17, 0.08) 0%, rgba(1, 6, 17, 0.58) 68%, rgba(1, 6, 17, 0.94) 100%);
 }
 
 .hero__video {
@@ -269,6 +269,7 @@ input {
   height: 100%;
   object-fit: cover;
   object-position: center 20%;
+  filter: brightness(1.14) contrast(1.04) saturate(1.06);
 }
 
 .hero__layout {
@@ -391,9 +392,15 @@ input {
   z-index: 4;
   margin-top: 0;
   padding: 72px 0 88px;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(47, 213, 255, 0.08), transparent 42%),
-    linear-gradient(180deg, #010611 0%, #020814 45%, #010611 100%);
+  background: transparent;
+  pointer-events: none;
+}
+
+.hero__orbit::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(1, 6, 17, 0) 0%, rgba(1, 6, 17, 0.18) 100%);
   pointer-events: none;
 }
 

@@ -19,6 +19,7 @@ type BinanceStreamTicker = {
 const UPDATE_INTERVAL_MS = 500
 
 function buildWsUrl(streams: string[]): string {
+  if (!streams.length) return ''
   const query = streams.map((stream) => `${stream}@ticker`).join('/')
   return `wss://stream.binance.com:9443/stream?streams=${query}`
 }
@@ -30,46 +31,121 @@ function createTicker(asset: CryptoAsset): CryptoTicker {
     icon: asset.icon,
     color: asset.color,
     price: asset.staticPrice ?? 0,
-    changePercent: asset.staticPrice ? 0 : 0,
+    changePercent: 0,
   }
+}
+
+function collectLiveStreams(watchlist: CryptoWatchlist): string[] {
+  return listWatchlistIds(watchlist)
+    .map((id) => getCryptoAsset(id))
+    .filter((asset): asset is CryptoAsset => Boolean(asset?.stream))
+    .map((asset) => asset.stream as string)
+}
+
+function sameStreams(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false
+  const sortedA = [...a].sort()
+  const sortedB = [...b].sort()
+  return sortedA.every((stream, index) => stream === sortedB[index])
 }
 
 export class CryptoPriceStream {
   private socket: WebSocket | null = null
   private reconnectTimer: number | null = null
   private flushTimer: number | null = null
+  private active = true
+  private liveStreams: string[] = []
   private readonly prices = new Map<string, CryptoTicker>()
   private readonly onUpdate: (tickers: Map<string, CryptoTicker>) => void
-  private readonly liveStreams: string[]
 
   constructor(watchlist: CryptoWatchlist, onUpdate: (tickers: Map<string, CryptoTicker>) => void) {
     this.onUpdate = onUpdate
-    this.liveStreams = listWatchlistIds(watchlist)
-      .map((id) => getCryptoAsset(id))
-      .filter((asset): asset is CryptoAsset => Boolean(asset && asset.stream))
-      .map((asset) => asset.stream as string)
-
-    for (const id of listWatchlistIds(watchlist)) {
-      const asset = getCryptoAsset(id)
-      if (!asset) continue
-      this.prices.set(id, createTicker(asset))
-    }
+    this.applyWatchlist(watchlist)
   }
 
   connect(): void {
-    this.flushNow()
+    this.active = true
+    this.emitPrices()
 
-    if (!this.liveStreams.length) return
+    if (!this.liveStreams.length) {
+      this.closeSocket()
+      return
+    }
 
-    this.socket?.close()
-    this.socket = new WebSocket(buildWsUrl(this.liveStreams))
+    this.openSocket()
+  }
+
+  disconnect(): void {
+    this.active = false
+    if (this.reconnectTimer) {
+      window.clearTimeout(this.reconnectTimer)
+      this.reconnectTimer = null
+    }
+    if (this.flushTimer) {
+      window.clearTimeout(this.flushTimer)
+      this.flushTimer = null
+    }
+    this.closeSocket()
+  }
+
+  updateWatchlist(watchlist: CryptoWatchlist): Map<string, CryptoTicker> {
+    const streamsChanged = this.applyWatchlist(watchlist)
+
+    if (!this.active) {
+      return this.getPrices()
+    }
+
+    if (streamsChanged) {
+      this.openSocket()
+    }
+
+    this.emitPrices()
+    return this.getPrices()
+  }
+
+  getPrices(): Map<string, CryptoTicker> {
+    return new Map(this.prices)
+  }
+
+  private applyWatchlist(watchlist: CryptoWatchlist): boolean {
+    const ids = new Set(listWatchlistIds(watchlist))
+
+    for (const id of [...this.prices.keys()]) {
+      if (!ids.has(id)) {
+        this.prices.delete(id)
+      }
+    }
+
+    for (const id of ids) {
+      if (this.prices.has(id)) continue
+      const asset = getCryptoAsset(id)
+      if (asset) {
+        this.prices.set(id, createTicker(asset))
+      }
+    }
+
+    const nextStreams = collectLiveStreams(watchlist)
+    const streamsChanged = !sameStreams(nextStreams, this.liveStreams)
+    this.liveStreams = nextStreams
+    return streamsChanged
+  }
+
+  private openSocket(): void {
+    this.closeSocket()
+
+    const url = buildWsUrl(this.liveStreams)
+    if (!url) return
+
+    this.socket = new WebSocket(url)
 
     this.socket.addEventListener('message', (event) => {
+      if (!this.active) return
+
       const payload = JSON.parse(event.data as string) as { data: BinanceStreamTicker }
       const ticker = payload.data
       const stream = ticker.s.toLowerCase()
       const asset = Object.values(CRYPTO_CATALOG).find((item) => item.stream === stream)
-      if (!asset) return
+      if (!asset || !this.prices.has(asset.id)) return
 
       this.prices.set(asset.id, {
         id: asset.id,
@@ -84,6 +160,7 @@ export class CryptoPriceStream {
     })
 
     this.socket.addEventListener('close', () => {
+      if (!this.active) return
       this.scheduleReconnect()
     })
 
@@ -92,37 +169,30 @@ export class CryptoPriceStream {
     })
   }
 
-  disconnect(): void {
-    if (this.reconnectTimer) {
-      window.clearTimeout(this.reconnectTimer)
-      this.reconnectTimer = null
-    }
-    if (this.flushTimer) {
-      window.clearTimeout(this.flushTimer)
-      this.flushTimer = null
-    }
+  private closeSocket(): void {
     this.socket?.close()
     this.socket = null
   }
 
   private scheduleFlush(): void {
-    if (this.flushTimer) return
+    if (this.flushTimer || !this.active) return
 
     this.flushTimer = window.setTimeout(() => {
       this.flushTimer = null
-      this.onUpdate(new Map(this.prices))
+      this.emitPrices()
     }, UPDATE_INTERVAL_MS)
   }
 
-  private flushNow(): void {
-    this.onUpdate(new Map(this.prices))
+  private emitPrices(): void {
+    if (!this.active) return
+    this.onUpdate(this.getPrices())
   }
 
   private scheduleReconnect(): void {
-    if (this.reconnectTimer) return
+    if (this.reconnectTimer || !this.active) return
     this.reconnectTimer = window.setTimeout(() => {
       this.reconnectTimer = null
-      this.connect()
+      this.openSocket()
     }, 3000)
   }
 }

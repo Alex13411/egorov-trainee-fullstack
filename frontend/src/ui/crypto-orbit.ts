@@ -1,4 +1,4 @@
-import { listAvailableToAdd } from '../services/crypto-catalog'
+import { listAvailableToAdd, listWatchlistIds } from '../services/crypto-catalog'
 import { renderCryptoIconMarkup } from '../services/crypto-icons'
 import { canAddMoreCoins, type CryptoWatchlist } from '../services/crypto-watchlist'
 import { formatPrice, type CryptoTicker } from '../services/crypto'
@@ -63,29 +63,46 @@ export function mountCryptoColumns(
   rightColumn.innerHTML = rightHtml
 }
 
-export function updateCryptoColumns(
+function listColumnIds(column: HTMLElement): string[] {
+  return [...column.querySelectorAll<HTMLElement>('.crypto-item')].map(
+    (item) => item.dataset.cryptoId ?? '',
+  )
+}
+
+export function syncCryptoColumns(
   leftColumn: HTMLElement,
   rightColumn: HTMLElement,
   watchlist: CryptoWatchlist,
   tickers: Map<string, CryptoTicker>,
 ): void {
-  const expectedCount = watchlist.left.length + watchlist.right.length
-  const currentCount = document.querySelectorAll('.crypto-item').length
+  const expectedLeft = watchlist.left
+  const expectedRight = watchlist.right
+  const currentLeft = listColumnIds(leftColumn)
+  const currentRight = listColumnIds(rightColumn)
 
-  if (currentCount !== expectedCount) {
+  const structureChanged =
+    expectedLeft.length !== currentLeft.length ||
+    expectedRight.length !== currentRight.length ||
+    expectedLeft.some((id, index) => currentLeft[index] !== id) ||
+    expectedRight.some((id, index) => currentRight[index] !== id)
+
+  if (structureChanged) {
     mountCryptoColumns(leftColumn, rightColumn, watchlist, tickers)
     return
   }
 
-  for (const id of [...watchlist.left, ...watchlist.right]) {
+  for (const id of listWatchlistIds(watchlist)) {
     const ticker = tickers.get(id)
     if (!ticker) continue
 
-    const item = document.querySelector<HTMLElement>(`.crypto-item[data-crypto-id="${id}"]`)
+    const item = leftColumn.querySelector<HTMLElement>(`[data-crypto-id="${id}"]`) ??
+      rightColumn.querySelector<HTMLElement>(`[data-crypto-id="${id}"]`)
     if (!item) continue
 
     const priceEl = item.querySelector<HTMLElement>('.crypto-item__price')
-    if (priceEl) priceEl.textContent = formatPrice(ticker.price)
+    if (priceEl) {
+      priceEl.textContent = formatPrice(ticker.price)
+    }
   }
 }
 
