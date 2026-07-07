@@ -15,9 +15,9 @@ egorov-trainee-fullstack/
 ├── frontend/                 # Vite + TypeScript landing page
 │   └── src/
 │       ├── main.ts           # entry point
-│       ├── app/              # mount, events, modals, crypto stream, UI state
-│       ├── ui/               # HTML templates (page, auth, crypto, modals)
-│       ├── services/         # auth, crypto stream, catalog, watchlist, icons
+│       ├── app/              # mount, events, modals, crypto-events, crypto-stream, ui-state
+│       ├── ui/               # HTML templates (page, auth-button, crypto-orbit, modals)
+│       ├── services/         # auth, crypto (Binance WS), catalog, watchlist, icons
 │       ├── content/          # Figma copy strings
 │       ├── utils/            # shared helpers (html escaping)
 │       └── styles/main.css
@@ -27,6 +27,7 @@ egorov-trainee-fullstack/
 │       ├── config.py         # environment settings
 │       ├── oauth.py          # Google OAuth client setup
 │       └── routes/           # health + auth endpoints
+├── docs/figma-reference/     # local Figma exports (gitignored except README)
 ├── render.yaml               # backend deploy
 └── dev.ps1                   # local dev script
 ```
@@ -50,9 +51,9 @@ The project is a small **monorepo** with a static frontend and a thin auth API.
 
 **Data flow:**
 
-1. User clicks **Sign in with Google** → frontend redirects to backend `/api/auth/google/login`
+1. User clicks **Sign in with Google** (header) or **Login / Sign Up** (banking card) → redirect to `/api/auth/google/login`
 2. Backend completes OAuth with Google → redirects back to frontend with user info in the URL
-3. Frontend saves user in `sessionStorage` and re-renders the header
+3. Frontend reads `?auth=success` on load, saves user in `sessionStorage`, and mounts the page with avatar in the header
 4. Crypto prices stream directly from Binance WebSocket to the browser (no backend proxy)
 
 This keeps the backend minimal (as required by the task) while the frontend stays readable without a UI framework.
@@ -101,11 +102,8 @@ uvicorn app.main:app --reload --port 8000
 
 ### 3. Hero video
 
-Download `HP.mp4.zip` from the Notion task page and place the extracted file at:
-
-```text
-frontend/public/videos/hero.mp4
-```
+The repo already includes `frontend/public/videos/hero.mp4`.  
+If the file is missing locally, download `HP.mp4.zip` from the Notion task page and extract it there.
 
 ## Google OAuth setup
 
