@@ -64,6 +64,36 @@ function renderAuthButton(user: AuthUser | null): string {
   `
 }
 
+function renderModals(): string {
+  return `
+    <div class="modal" data-modal="learn-more" aria-hidden="true">
+      <div class="modal__backdrop" data-action="close-modal"></div>
+      <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="learn-more-title">
+        <button class="modal__close" type="button" data-action="close-modal" aria-label="Close">×</button>
+        <h2 class="modal__title" id="learn-more-title">FROM THE FIELD OF ALL POSSIBILITY</h2>
+        <p class="modal__text">
+          Kairos is a next-generation online banking platform built for real-time markets,
+          secure access, and seamless digital finance across currencies and crypto assets.
+        </p>
+        <button class="modal__action" type="button" data-action="close-modal">Got it</button>
+      </div>
+    </div>
+
+    <div class="modal modal--video" data-modal="video" aria-hidden="true">
+      <div class="modal__backdrop" data-action="close-modal"></div>
+      <div class="modal__dialog modal__dialog--video" role="dialog" aria-modal="true" aria-labelledby="video-title">
+        <button class="modal__close" type="button" data-action="close-modal" aria-label="Close">×</button>
+        <h2 class="modal__title modal__title--compact" id="video-title">Experience Kairos</h2>
+        <div class="modal__video-wrap">
+          <video class="modal__video" controls playsinline preload="metadata">
+            <source src="/videos/hero.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+    </div>
+  `
+}
+
 function renderPage(user: AuthUser | null): string {
   return `
     <div class="page">
@@ -87,7 +117,6 @@ function renderPage(user: AuthUser | null): string {
         </div>
       </header>
 
-      <div class="mobile-menu__backdrop" data-mobile-backdrop hidden data-action="close-menu"></div>
       <aside class="mobile-menu" data-mobile-menu hidden aria-label="Mobile navigation">
         <nav class="mobile-menu__nav">
           ${NAV_ITEMS.map((item) => `<a class="mobile-menu__link" href="#">${item}</a>`).join('')}
@@ -95,8 +124,8 @@ function renderPage(user: AuthUser | null): string {
         </nav>
       </aside>
 
-      <section class="hero" aria-label="Hero">
-        <div class="hero__media">
+      <main class="hero" aria-label="Hero">
+        <div class="hero__media" aria-hidden="true">
           <video class="hero__video" autoplay muted loop playsinline preload="auto">
             <source src="/videos/hero.mp4" type="video/mp4" />
           </video>
@@ -139,7 +168,7 @@ function renderPage(user: AuthUser | null): string {
             </form>
           </aside>
         </div>
-      </section>
+      </main>
 
       <section class="crypto-section" aria-label="Live cryptocurrency prices">
         <div class="container">
@@ -156,32 +185,6 @@ function renderPage(user: AuthUser | null): string {
           </div>
         </div>
       </section>
-
-      <div class="modal" data-modal="learn-more" aria-hidden="true">
-        <div class="modal__backdrop" data-action="close-modal"></div>
-        <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="learn-more-title">
-          <button class="modal__close" type="button" data-action="close-modal" aria-label="Close">×</button>
-          <h2 class="modal__title" id="learn-more-title">FROM THE FIELD OF ALL POSSIBILITY</h2>
-          <p class="modal__text">
-            Kairos is a next-generation online banking platform built for real-time markets,
-            secure access, and seamless digital finance across currencies and crypto assets.
-          </p>
-          <button class="modal__action" type="button" data-action="close-modal">Got it</button>
-        </div>
-      </div>
-
-      <div class="modal modal--video" data-modal="video" aria-hidden="true">
-        <div class="modal__backdrop" data-action="close-modal"></div>
-        <div class="modal__dialog modal__dialog--video" role="dialog" aria-modal="true" aria-labelledby="video-title">
-          <button class="modal__close" type="button" data-action="close-modal" aria-label="Close">×</button>
-          <h2 class="modal__title modal__title--compact" id="video-title">Experience Kairos</h2>
-          <div class="modal__video-wrap">
-            <video class="modal__video" controls playsinline preload="metadata">
-              <source src="/videos/hero.mp4" type="video/mp4" />
-            </video>
-          </div>
-        </div>
-      </div>
     </div>
   `
 }
@@ -209,8 +212,8 @@ function updateCryptoOrbit(container: HTMLElement, tickers: CryptoTicker[]): voi
   })
 }
 
-function closeAllModals(root: HTMLElement): void {
-  root.querySelectorAll<HTMLElement>('.modal').forEach((modal) => {
+function closeAllModals(): void {
+  document.querySelectorAll<HTMLElement>('.modal').forEach((modal) => {
     modal.classList.remove('is-open')
     modal.setAttribute('aria-hidden', 'true')
     modal.querySelector<HTMLVideoElement>('.modal__video')?.pause()
@@ -218,15 +221,15 @@ function closeAllModals(root: HTMLElement): void {
   document.body.classList.remove('modal-open')
 }
 
-function setModal(root: HTMLElement, id: ModalId, open: boolean): void {
+function setModal(id: ModalId, open: boolean): void {
   if (!open) {
-    closeAllModals(root)
+    closeAllModals()
     return
   }
 
-  closeAllModals(root)
+  closeAllModals()
 
-  const modal = root.querySelector<HTMLElement>(`[data-modal="${id}"]`)
+  const modal = document.querySelector<HTMLElement>(`[data-modal="${id}"]`)
   if (!modal) return
 
   modal.classList.add('is-open')
@@ -242,14 +245,10 @@ function setModal(root: HTMLElement, id: ModalId, open: boolean): void {
 
 function setMobileMenuOpen(root: HTMLElement, open: boolean): void {
   const menu = root.querySelector<HTMLElement>('[data-mobile-menu]')
-  const backdrop = root.querySelector<HTMLElement>('[data-mobile-backdrop]')
   root.classList.toggle('page--menu-open', open)
   if (menu) {
     menu.hidden = !open
     menu.setAttribute('aria-hidden', open ? 'false' : 'true')
-  }
-  if (backdrop) {
-    backdrop.hidden = !open
   }
 }
 
@@ -273,15 +272,81 @@ function setAuthTab(root: HTMLElement, tab: 'login' | 'signup'): void {
   })
 }
 
+function bindEvents(root: HTMLElement): void {
+  document.addEventListener('click', (event) => {
+    const target = event.target
+    if (!(target instanceof Element)) return
+
+    const actionEl = target.closest<HTMLElement>('[data-action]')
+    if (actionEl) {
+      const action = actionEl.dataset.action
+
+      if (action === 'google-login') {
+        event.preventDefault()
+        startGoogleLogin()
+        return
+      }
+
+      if (action === 'toggle-menu') {
+        event.preventDefault()
+        setMobileMenuOpen(root, !root.classList.contains('page--menu-open'))
+        return
+      }
+
+      if (action === 'close-menu' || action === 'close-modal') {
+        event.preventDefault()
+        setMobileMenuOpen(root, false)
+        closeAllModals()
+        return
+      }
+
+      if (action === 'open-modal') {
+        event.preventDefault()
+        const modalId = actionEl.getAttribute('data-modal') as ModalId | null
+        if (modalId) setModal(modalId, true)
+        return
+      }
+    }
+
+    const tab = target.closest<HTMLButtonElement>('.banking-card__tab')
+    if (tab) {
+      event.preventDefault()
+      setAuthTab(root, tab.dataset.tab === 'signup' ? 'signup' : 'login')
+    }
+  })
+
+  root.querySelector('.banking-card__form')?.addEventListener('submit', (event) => {
+    event.preventDefault()
+  })
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeAllModals()
+      setMobileMenuOpen(root, false)
+    }
+  })
+}
+
+function mountModals(): void {
+  const host = document.getElementById('modals-root') ?? document.createElement('div')
+  host.id = 'modals-root'
+  host.innerHTML = renderModals()
+  if (!host.parentElement) {
+    document.body.appendChild(host)
+  }
+  closeAllModals()
+}
+
 function mount(): void {
   const root = document.querySelector<HTMLDivElement>('#app')
   if (!root) return
 
+  mountModals()
+
   const user = readAuthFromUrl()
   root.innerHTML = renderPage(user)
-  closeAllModals(root)
   setMobileMenuOpen(root, false)
-  bindEvents(root, user)
+  bindEvents(root)
 
   const cryptoContainer = root.querySelector<HTMLElement>('.crypto-orbit__items')
   if (!cryptoContainer) return
@@ -292,58 +357,6 @@ function mount(): void {
   stream.connect()
 
   window.addEventListener('beforeunload', () => stream.disconnect())
-}
-
-function bindEvents(root: HTMLElement, user: AuthUser | null): void {
-  root.addEventListener('click', (event) => {
-    const target = (event.target as HTMLElement).closest<HTMLElement>('[data-action]')
-    if (!target) return
-
-    const action = target.dataset.action
-
-    if (action === 'google-login') {
-      startGoogleLogin()
-      return
-    }
-
-    if (action === 'toggle-menu') {
-      setMobileMenuOpen(root, !root.classList.contains('page--menu-open'))
-      return
-    }
-
-    if (action === 'close-menu' || action === 'close-modal') {
-      setMobileMenuOpen(root, false)
-      closeAllModals(root)
-      return
-    }
-
-    if (action === 'open-modal') {
-      const modalId = target.getAttribute('data-modal') as ModalId | null
-      if (modalId) setModal(root, modalId, true)
-    }
-  })
-
-  root.addEventListener('click', (event) => {
-    const tab = (event.target as HTMLElement).closest<HTMLButtonElement>('.banking-card__tab')
-    if (!tab) return
-
-    setAuthTab(root, tab.dataset.tab === 'signup' ? 'signup' : 'login')
-  })
-
-  root.querySelector('.banking-card__form')?.addEventListener('submit', (event) => {
-    event.preventDefault()
-  })
-
-  if (user) {
-    setAuthTab(root, 'login')
-  }
-
-  window.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      closeAllModals(root)
-      setMobileMenuOpen(root, false)
-    }
-  })
 }
 
 mount()

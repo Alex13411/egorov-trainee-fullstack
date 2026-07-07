@@ -382,18 +382,7 @@ input {
 }
 
 .mobile-menu__backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 24;
-  border: 0;
-  background: rgba(1, 6, 17, 0.55);
-  backdrop-filter: blur(2px);
-  cursor: pointer;
-}
-
-.mobile-menu__backdrop[hidden] {
   display: none !important;
-  pointer-events: none !important;
 }
 
 .mobile-menu {
@@ -411,6 +400,15 @@ input {
 
 .mobile-menu[hidden] {
   display: none;
+}
+
+.page--menu-open::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 24;
+  background: rgba(1, 6, 17, 0.55);
+  backdrop-filter: blur(2px);
 }
 
 .page--menu-open .mobile-menu {
@@ -444,10 +442,8 @@ input {
 .crypto-section {
   position: relative;
   z-index: 1;
-  margin-top: -120px;
-  padding: 0 0 96px;
-  background: linear-gradient(180deg, transparent, var(--bg) 40%);
-  pointer-events: none;
+  padding: 48px 0 96px;
+  background: var(--bg);
 }
 
 .crypto-orbit {
@@ -455,7 +451,6 @@ input {
   width: min(820px, 100%);
   aspect-ratio: 1;
   margin: 0 auto;
-  pointer-events: none;
 }
 
 .crypto-orbit__glow,
@@ -574,16 +569,20 @@ input {
 
 /* Modal */
 .modal {
-  display: none;
+  display: none !important;
   position: fixed;
   inset: 0;
   z-index: 40;
   padding: 24px;
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .modal.is-open {
-  display: grid;
+  display: grid !important;
   place-items: center;
+  pointer-events: auto;
+  visibility: visible;
 }
 
 .modal__backdrop {
@@ -708,15 +707,7 @@ input {
   }
 
   .crypto-section {
-    margin-top: 0;
     padding: 24px 0 64px;
-    pointer-events: auto;
-  }
-
-  .crypto-orbit {
-    width: 100%;
-    aspect-ratio: auto;
-    pointer-events: auto;
   }
 
   .crypto-orbit__glow,
