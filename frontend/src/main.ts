@@ -96,10 +96,12 @@ function renderPage(user: AuthUser | null): string {
       </aside>
 
       <section class="hero" aria-label="Hero">
-        <video class="hero__video" autoplay muted loop playsinline preload="auto">
-          <source src="/videos/hero.mp4" type="video/mp4" />
-        </video>
-        <div class="hero__overlay"></div>
+        <div class="hero__media">
+          <video class="hero__video" autoplay muted loop playsinline preload="auto">
+            <source src="/videos/hero.mp4" type="video/mp4" />
+          </video>
+          <div class="hero__overlay"></div>
+        </div>
 
         <div class="container hero__layout">
           <div class="hero__content">

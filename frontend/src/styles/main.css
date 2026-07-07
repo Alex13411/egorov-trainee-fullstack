@@ -173,8 +173,15 @@ input {
 /* Hero */
 .hero {
   position: relative;
+  z-index: 2;
   min-height: 100vh;
+}
+
+.hero__media {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
+  pointer-events: none;
 }
 
 .hero__video,
@@ -391,15 +398,12 @@ input {
 }
 
 .mobile-menu[hidden] {
-  display: block;
-  visibility: hidden;
-  pointer-events: none;
+  display: none;
 }
 
 .page--menu-open .mobile-menu {
+  display: block;
   transform: translateX(0);
-  visibility: visible;
-  pointer-events: auto;
 }
 
 .mobile-menu__nav {
@@ -431,6 +435,7 @@ input {
   margin-top: -120px;
   padding: 0 0 96px;
   background: linear-gradient(180deg, transparent, var(--bg) 40%);
+  pointer-events: none;
 }
 
 .crypto-orbit {
@@ -438,6 +443,7 @@ input {
   width: min(820px, 100%);
   aspect-ratio: 1;
   margin: 0 auto;
+  pointer-events: none;
 }
 
 .crypto-orbit__glow,
@@ -472,6 +478,7 @@ input {
   background: radial-gradient(circle, rgba(47, 213, 255, 0.08), rgba(1, 6, 17, 0.2));
   cursor: pointer;
   z-index: 2;
+  pointer-events: auto;
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
@@ -494,16 +501,7 @@ input {
 .crypto-orbit__items {
   position: absolute;
   inset: 0;
-}
-
-.crypto-orbit__loading {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.875rem;
+  pointer-events: none;
 }
 
 .crypto-orbit__item {
@@ -515,6 +513,17 @@ input {
   background: rgba(5, 18, 36, 0.88);
   text-align: center;
   backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+
+.crypto-orbit__loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
 }
 
 .crypto-orbit__pair {
@@ -552,7 +561,7 @@ input {
 
 /* Modal */
 .modal[hidden] {
-  display: none;
+  display: none !important;
 }
 
 .modal {
@@ -686,11 +695,13 @@ input {
   .crypto-section {
     margin-top: 0;
     padding: 24px 0 64px;
+    pointer-events: auto;
   }
 
   .crypto-orbit {
     width: 100%;
     aspect-ratio: auto;
+    pointer-events: auto;
   }
 
   .crypto-orbit__glow,
