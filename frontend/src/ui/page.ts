@@ -1,5 +1,6 @@
 import type { AuthUser } from '../services/auth'
 import { CTA_ARROW_ICON, CTA_PLAY_ICON, FIGMA_COPY } from '../content/figma'
+import { escapeHtml } from '../utils/html'
 import { renderAuthButton, renderMobileAuth } from './auth-button'
 import { LOGO_MARK, NAV_ITEMS } from './constants'
 
@@ -11,9 +12,10 @@ function renderNavLinks(activeSection = 'home'): string {
   }).join('')
 }
 
-export function renderPage(user: AuthUser | null): string {
+export function renderPage(user: AuthUser | null, authError: string | null = null): string {
   return `
     <div class="page">
+      ${authError ? `<p class="auth-error" role="alert">${escapeHtml(authError)}</p>` : ''}
       <header class="header">
         <div class="container header__inner">
           <a class="logo" href="#home" data-section="home" aria-label="Kairos home">

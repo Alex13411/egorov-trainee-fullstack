@@ -83,6 +83,24 @@ input {
   position: relative;
 }
 
+.auth-error {
+  position: fixed;
+  top: calc(var(--header-height) + 8px);
+  left: 50%;
+  z-index: 35;
+  width: min(520px, calc(100% - 32px));
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 123, 123, 0.45);
+  border-radius: 12px;
+  background: rgba(36, 8, 8, 0.92);
+  color: #ffd4d4;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
 [id] {
   scroll-margin-top: calc(var(--header-height) + 16px);
 }
@@ -1226,13 +1244,6 @@ input {
   object-fit: cover;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .crypto-orbit__glow,
-  .crypto-orbit__ring,
-  .crypto-orbit__orb {
-    animation: none;
-  }
-}
 
 /* Footer — contact anchor */
 .footer {

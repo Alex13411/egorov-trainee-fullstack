@@ -15,9 +15,9 @@ egorov-trainee-fullstack/
 ├── frontend/                 # Vite + TypeScript landing page
 │   └── src/
 │       ├── main.ts           # entry point
-│       ├── app/              # mount, events, modals, UI state
+│       ├── app/              # mount, events, modals, crypto stream, UI state
 │       ├── ui/               # HTML templates (page, auth, crypto, modals)
-│       ├── services/         # auth + Binance WebSocket
+│       ├── services/         # auth, crypto stream, catalog, watchlist, icons
 │       ├── content/          # Figma copy strings
 │       ├── utils/            # shared helpers (html escaping)
 │       └── styles/main.css
@@ -38,9 +38,15 @@ The project is a small **monorepo** with a static frontend and a thin auth API.
 | Layer | Role |
 |-------|------|
 | **`ui/`** | Builds HTML from Figma copy. No business logic. |
-| **`services/`** | Auth flow + live crypto prices. Reusable from any UI. |
-| **`app/`** | Wires the page together: mount, events, modals, menu state. |
+| **`services/`** | Auth, Binance WebSocket stream, coin catalog, watchlist persistence. |
+| **`app/`** | Application wiring only: mount, delegated events, modal state, crypto lifecycle. |
 | **`backend/routes/`** | HTTP endpoints only. OAuth setup lives in `oauth.py`. |
+
+**Design principles used in this repo:**
+
+- **KISS:** no UI framework, no database, no unnecessary abstractions.
+- **Single responsibility:** templates in `ui/`, side effects in `services/`, glue code in `app/`.
+- **Stable DOM updates:** crypto prices patch in place instead of re-rendering the page.
 
 **Data flow:**
 

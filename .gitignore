@@ -33,3 +33,4 @@ figma*.jpg
 figma*.png
 docs/figma-reference/*
 !docs/figma-reference/README.md
+docs/video-frames/

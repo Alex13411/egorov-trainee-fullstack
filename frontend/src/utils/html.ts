@@ -9,3 +9,4 @@ export function escapeHtml(value: string): string {
 export function escapeAttr(value: string): string {
   return escapeHtml(value)
 }
+

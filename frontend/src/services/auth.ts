@@ -6,6 +6,8 @@ export type AuthUser = {
 
 const AUTH_STORAGE_KEY = 'kairos_auth_user'
 
+let pendingAuthError: string | null = null
+
 export function saveAuthUser(user: AuthUser): void {
   sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user))
 }
@@ -27,13 +29,18 @@ export function clearAuthUser(): void {
   sessionStorage.removeItem(AUTH_STORAGE_KEY)
 }
 
+export function consumeAuthError(): string | null {
+  const message = pendingAuthError
+  pendingAuthError = null
+  return message
+}
+
 export function readAuthFromUrl(): AuthUser | null {
   const params = new URLSearchParams(window.location.search)
 
   if (params.get('auth') === 'error') {
-    const message = params.get('message') ?? 'Sign in failed'
+    pendingAuthError = params.get('message') ?? 'Sign in failed'
     window.history.replaceState({}, document.title, window.location.pathname)
-    alert(`Google sign-in failed: ${message}`)
     return null
   }
 

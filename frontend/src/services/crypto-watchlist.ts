@@ -3,7 +3,6 @@ import {
   MAX_COINS_PER_COLUMN,
   getCryptoAsset,
   listWatchlistIds,
-  type CryptoAsset,
 } from './crypto-catalog'
 
 export type CryptoWatchlist = {
@@ -87,5 +86,3 @@ function cloneWatchlist(watchlist: { left: readonly string[]; right: readonly st
     right: [...watchlist.right],
   }
 }
-
-export type { CryptoAsset }
