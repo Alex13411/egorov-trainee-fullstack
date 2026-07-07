@@ -127,16 +127,20 @@ function renderPage(user: AuthUser | null): string {
             </form>
           </aside>
         </div>
+      </section>
 
-        <section class="crypto-orbit" aria-label="Live cryptocurrency prices">
-          <div class="crypto-orbit__glow" aria-hidden="true"></div>
-          <div class="crypto-orbit__ring crypto-orbit__ring--outer" aria-hidden="true"></div>
-          <div class="crypto-orbit__ring crypto-orbit__ring--inner" aria-hidden="true"></div>
-          <div class="crypto-orbit__core" aria-hidden="true"></div>
-          <div class="crypto-orbit__items">
-            <p class="crypto-orbit__loading">Loading live prices…</p>
+      <section class="crypto-section" aria-label="Live cryptocurrency prices">
+        <div class="container">
+          <div class="crypto-orbit">
+            <div class="crypto-orbit__glow" aria-hidden="true"></div>
+            <div class="crypto-orbit__ring crypto-orbit__ring--outer" aria-hidden="true"></div>
+            <div class="crypto-orbit__ring crypto-orbit__ring--inner" aria-hidden="true"></div>
+            <div class="crypto-orbit__core" aria-hidden="true"></div>
+            <div class="crypto-orbit__items">
+              <p class="crypto-orbit__loading">Loading live prices…</p>
+            </div>
           </div>
-        </section>
+        </div>
       </section>
 
       <div class="modal" data-modal="learn-more" hidden>

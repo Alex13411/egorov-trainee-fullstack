@@ -224,9 +224,9 @@ input {
   grid-template-columns: minmax(0, 1.05fr) minmax(320px, 420px);
   align-items: center;
   gap: 48px;
-  min-height: calc(100vh - 120px);
+  min-height: calc(100vh - var(--header-height));
   padding-top: calc(var(--header-height) + 48px);
-  padding-bottom: 360px;
+  padding-bottom: 80px;
 }
 
 .hero__content {
@@ -266,6 +266,8 @@ input {
 
 /* Banking card */
 .banking-card {
+  position: relative;
+  z-index: 3;
   width: 100%;
   padding: 28px 28px 32px;
   border: 1px solid var(--border);
@@ -361,15 +363,20 @@ input {
   cursor: pointer;
 }
 
-/* Crypto orbit */
+/* Crypto section */
+.crypto-section {
+  position: relative;
+  z-index: 1;
+  margin-top: -120px;
+  padding: 0 0 96px;
+  background: linear-gradient(180deg, transparent, var(--bg) 40%);
+}
+
 .crypto-orbit {
-  position: absolute;
-  left: 50%;
-  bottom: -40px;
-  z-index: 3;
-  width: min(820px, calc(100% - 32px));
+  position: relative;
+  width: min(820px, 100%);
   aspect-ratio: 1;
-  transform: translateX(-50%);
+  margin: 0 auto;
 }
 
 .crypto-orbit__glow,
@@ -550,7 +557,7 @@ input {
   .hero__layout {
     grid-template-columns: 1fr;
     gap: 40px;
-    padding-bottom: 340px;
+    padding-bottom: 48px;
   }
 
   .hero__content {
@@ -567,13 +574,39 @@ input {
     margin-inline: auto;
   }
 
+  .crypto-section {
+    margin-top: 0;
+    padding: 24px 0 64px;
+  }
+
   .crypto-orbit {
-    width: min(680px, calc(100% - 24px));
-    bottom: -20px;
+    width: 100%;
+    aspect-ratio: auto;
+  }
+
+  .crypto-orbit__glow,
+  .crypto-orbit__ring,
+  .crypto-orbit__core {
+    display: none;
+  }
+
+  .crypto-orbit__items {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .crypto-orbit__loading {
+    position: static;
+    grid-column: 1 / -1;
+    padding: 24px 0;
   }
 
   .crypto-orbit__item {
-    width: 132px;
+    position: static;
+    width: auto;
+    transform: none;
   }
 }
 
@@ -593,7 +626,7 @@ input {
 
   .hero__layout {
     padding-top: calc(var(--header-height) + 24px);
-    padding-bottom: 300px;
+    padding-bottom: 32px;
     gap: 28px;
   }
 
@@ -606,23 +639,11 @@ input {
     border-radius: 20px;
   }
 
-  .crypto-orbit {
-    width: calc(100% - 16px);
-    bottom: 0;
+  .crypto-section {
+    padding: 16px 0 48px;
   }
 
-  .crypto-orbit__item {
-    width: 118px;
-    padding: 10px;
-  }
-
-  .crypto-orbit__item--1,
-  .crypto-orbit__item--2 {
-    right: 0;
-  }
-
-  .crypto-orbit__item--4,
-  .crypto-orbit__item--5 {
-    left: 0;
+  .crypto-orbit__items {
+    grid-template-columns: 1fr;
   }
 }
