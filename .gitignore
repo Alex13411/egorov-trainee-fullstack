@@ -28,6 +28,8 @@ Thumbs.db
 __MACOSX/
 .DS_Store
 
-# Local Figma comparison crops (not for repo)
+# Local Figma comparison crops (dev only, not for repo)
 figma*.jpg
 figma*.png
+docs/figma-reference/*
+!docs/figma-reference/README.md
